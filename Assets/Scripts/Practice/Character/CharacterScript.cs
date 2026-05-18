@@ -6,13 +6,16 @@ public class CharacterScript : MonoBehaviour, IControllable
 {
     public event Action<Transform> OnMove;
     public event Action<int,int> OnDamaged;
+    private Skill testingSkill;
     public int MaxHp { get; private set; }
     public int Hp { get; private set; }
     public int AC { get; private set; }
+    public int ATK { get; private set; }
     public bool IsAlive { get; private set; }
     public Vector2Int GridPosition { get; private set; }
     private bool _drawCheck = false;
     public int AttackRange { get; private set; }
+    public string Name { get; private set; }
     private void Awake()
     {
         MaxHp = 10;
@@ -25,6 +28,8 @@ public class CharacterScript : MonoBehaviour, IControllable
         Init();
         GridPosition = MapManager.Inst.WorldToArrayPos(transform.position);
         MapManager.Inst.OccupyTile(GridPosition, this);
+        testingSkill = SkillFactory.CreateSkill(GameDataManager.Instance.GetSkill("skill_smash"));
+
     }
     void Init()
     {
@@ -32,8 +37,22 @@ public class CharacterScript : MonoBehaviour, IControllable
         // register this character to Ui
         hpbarGroup.RegisterCharacter(this);
     }
+    public void SetCharacter(MonsterData data)
+    {
+        MaxHp = data.HP;
+        Hp = data.HP;
+        Name = data.Name;
+        AttackRange = data.Range;
+        ATK = data.ATK;
+        AC = data.AC;
+    }
     private void Update()
     {
+    }
+    public void Skill(Vector2Int target)
+    {
+        BattleManager.Inst.RequestSkill(this, target, testingSkill);
+        //testingSkill.Execute(this, target);
     }
     public void Move(Vector2Int direction)
     {

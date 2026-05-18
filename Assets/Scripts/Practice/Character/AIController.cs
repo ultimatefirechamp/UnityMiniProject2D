@@ -28,7 +28,6 @@ public class AIController : MonoBehaviour
     {
         Vector2Int myPos = MapManager.Inst.WorldToArrayPos(transform.position);
         Vector2Int playerPos = MapManager.Inst.WorldToArrayPos(playerTransform.position);
-        Debug.Log($"PlayerPos : {playerPos} | AIPos : {myPos}");
 
         List<Vector2Int> path = MapManager.Inst.GetPathToTarget(myPos, playerPos);
         if(path == null)
