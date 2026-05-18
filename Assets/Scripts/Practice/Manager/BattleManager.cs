@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -53,6 +54,15 @@ public class BattleManager : MonoBehaviour
             targetCharacter.TakeDamage(1);
         }
     }
+    public void RequestSkill(CharacterScript caster, Vector2Int target, Skill skill)
+    {
+        // skill check and execute Skill
+        if(IsPlayerTurn == false)
+        {
+            return;
+        }
+        skill.Execute(caster,target);
+    }
     private void Update()
     {
         if(IsPlayerTurn == false)
@@ -93,5 +103,12 @@ public class BattleManager : MonoBehaviour
         GameObject spawnedEnemy = Instantiate(_enemyPrefab);
         spawnedEnemy.transform.position = new Vector2(0.5f, 0.5f);
         _enemyList.Add(spawnedEnemy.GetComponent<CharacterScript>());
+    }
+    public CharacterScript GetSpawnEnemy()
+    {
+        GameObject spawnedEnemy = Instantiate(_enemyPrefab);
+        spawnedEnemy.transform.position = new Vector2(0.5f, 0.5f);
+        _enemyList.Add(spawnedEnemy.GetComponent<CharacterScript>());
+        return spawnedEnemy.GetComponent<CharacterScript>();
     }
 }
