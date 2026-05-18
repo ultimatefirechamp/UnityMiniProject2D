@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using NUnit.Framework;
 
 public enum EffectType
 {
@@ -8,7 +9,9 @@ public enum EffectType
     MOVE,
     DAMAGE,
     HEAL,
-    KNOCKBACK
+    SELFHEAL,
+    KNOCKBACK,
+    DASHSLASH
 }
 public enum SkillType
 {
@@ -21,6 +24,7 @@ public abstract class Effect
 {
     public EffectType Type { get; private set;  }
     protected int _value;
+    protected int[] _values;
     public void Init(int value)
     {
         this._value = value;
@@ -30,9 +34,14 @@ public abstract class Effect
         Type = type;
         _value = value;
     }
+    public Effect(EffectType type, int[] values)
+    {
+        Type = type;
+        _values = values;
+    }
     public abstract void ApplyEffect(CharacterScript caster, Vector2Int target);
 }
-
+ 
 public class DamageEffect : Effect
 {
     public DamageEffect(int value) : base(EffectType.DAMAGE, value) { }
@@ -48,7 +57,7 @@ public class DamageEffect : Effect
 
 public class HealEffect : Effect
 {
-    public HealEffect(int value) : base(EffectType.HEAL, value) { }
+    public HealEffect(int value) : base(EffectType.SELFHEAL, value) { }
     public override void ApplyEffect(CharacterScript caster, Vector2Int target)
     {
         var targetCharacter = MapManager.Inst.GetCharacterAtPosition(target);
@@ -56,6 +65,14 @@ public class HealEffect : Effect
         {
             targetCharacter.Heal(_value);
         }
+    }
+}
+public class SelfHealEffect : Effect
+{
+    public SelfHealEffect(int value) : base(EffectType.HEAL, value) { }
+    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    {
+        caster.Heal(_value);
     }
 }
 
@@ -82,7 +99,41 @@ public class KnockBackEffect : Effect
         }
     }
 }
+public class DashSlashEffect : Effect
+{
+    public DashSlashEffect(int[] values) : base(EffectType.DASHSLASH, values) { }
+    
+    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    {
+        int moveDistance = _values[0];
+        int damage = _values[1];
 
+        Vector2Int direction = target - caster.GridPosition;
+
+        // n칸 이동, 경로의 적들에게 데미지, 이동하려는 자리가 점유되어있다면 그 캐릭터 옮기기...
+        // 1. 이동방향 * n을 한칸씩 가면서 벽인지, 적인지를 체크
+        // 다음 방향 == 벽은 즉시 stop
+        // 다음 방향 == 적은 계속 진행
+        // 지나가는 적들을 일단 배열로 저장?
+        // pos = currentpos
+        // count = 0
+        // for (i = 0 ~ 4)
+        // {
+        // pos = pos + dir
+        // if (pos.wall) pos-dir; break 벽을 만나면 이전 위치로
+        // count++
+        // if (pos.occupied) enemyStack.enque(pos.character)
+        // }
+        // if(pos.occupied == false) playerMoveto(pos) <- 이 경우 enemy 옮기는 과정은 스킵
+        // for(i= 0 ~ count)
+        // {
+        // pos = pos - dir
+        // if(pos.occupied) enemyStack.deque.Forcemove(pos)
+        // else enemyStack.deque.Forcemove(pos) break
+        // }
+    }
+
+}
 
 [System.Serializable]
 public class SkillData : GameDataBase // 데이터 드리븐을 통해 받을 스킬의 데이터 양식
@@ -100,6 +151,10 @@ public class Skill // 실질적으로 게임에 적용될 양식. 스킬이 객�
     public string Id { get; private set; }
     public string Name { get; private set; }
     public string Description { get; private set; }
+
+    // 
+    // 강사님 피드백 : 차라리 Data를 소유하고 있는 구조는 어떤가?
+    // 스킬 레코드
     public int CostSP { get; private set; }
     public SkillType Type { get; private set; }
     public int CastRange { get; private set; }
@@ -200,6 +255,8 @@ public static class SkillFactory
                 return new DamageEffect(value);
             case EffectType.HEAL:
                 return new HealEffect(value);
+            case EffectType.SELFHEAL:
+                return new SelfHealEffect(value);
             case EffectType.KNOCKBACK:
                 return new KnockBackEffect(value);
         }
