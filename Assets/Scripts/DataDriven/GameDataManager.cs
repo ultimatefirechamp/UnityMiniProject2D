@@ -26,6 +26,7 @@ public class GameDataManager : MonoBehaviour
     public Dictionary<string, SkillData> SkillDataList { get; private set; } = new Dictionary<string, SkillData>();
     public Dictionary<string, WeaponData> WeaponDataList { get; private set; } = new Dictionary<string, WeaponData>();
     public Dictionary<string, CostumeData> CostumeDataList { get; private set; } = new Dictionary<string, CostumeData>();
+    public Dictionary<string, MonsterData> MonsterDataList { get; private set; } = new Dictionary<string, MonsterData>();
 
     private Dictionary<string, T> LoadData<T>(string tableName) where T : GameDataBase
     {
@@ -85,7 +86,10 @@ public class GameDataManager : MonoBehaviour
     {
         CostumeDataList = LoadData<CostumeData>(jsonPath);
     }
-
+    public void LoadMonsterData(string jsonPath)
+    {
+        MonsterDataList = LoadData<MonsterData>(jsonPath);
+    }
 
 
 // [아래는 사용을 위한 부분들을 메서드 정의] =========================================================================================
@@ -117,5 +121,11 @@ public class GameDataManager : MonoBehaviour
         if (CostumeDataList == null || string.IsNullOrEmpty(id)) return null;
 
         return CostumeDataList.TryGetValue(id, out var data) ? data : null;
+    }
+
+    public MonsterData GetMonsterData(string id)
+    {
+        if(MonsterDataList == null || string.IsNullOrEmpty(id)) return null;
+        return MonsterDataList.TryGetValue(id,out var data) ? data : null;
     }
 }

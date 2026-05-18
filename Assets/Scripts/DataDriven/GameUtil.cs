@@ -12,6 +12,7 @@ public static class GameUtil
         GameDataManager.Instance.LoadCharacterData("Character");
         GameDataManager.Instance.LoadWeaponData("Weapon");
         GameDataManager.Instance.LoadCostumeData("Costume");
+        GameDataManager.Instance.LoadMonsterData("Monster");
     }
 
     public static Sprite LoadSpriteCanBeNull(string spritePath)
