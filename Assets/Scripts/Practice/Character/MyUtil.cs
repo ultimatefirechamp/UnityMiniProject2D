@@ -28,4 +28,8 @@ public static class MyUtil
         Vector2Int rightDir = Directions[(currentDirection + 1) % 8];
         return (leftDir, rightDir);
     }
+    public static int GetDistance(Vector2Int a, Vector2Int b)
+    {
+        return Mathf.Max(Mathf.Abs(a.x - b.x), Mathf.Abs(a.y - b.y));
+    }
 }
