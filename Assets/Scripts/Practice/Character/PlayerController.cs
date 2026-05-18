@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         MoveInputHandle();
+        SkillInputHandle();
     }
     void MoveInputHandle()
     {
@@ -91,5 +92,16 @@ public class PlayerController : MonoBehaviour
         _character.Move(moveDirection);
         BattleManager.Inst.TurnChange();
         Input.ResetInputAxes();
+    }
+    void SkillInputHandle()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            if(_character is CharacterScript playableCharacter)
+            {
+                // Test Skill Script
+                playableCharacter.Skill(playableCharacter.GridPosition+Vector2Int.up);
+            }
+        }
     }
 }
