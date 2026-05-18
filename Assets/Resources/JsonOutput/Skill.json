@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "skill_smash",
+    "Name": "강타",
+    "Description": "강하게 때린다",
+    "CostSP": 0,
+    "Type": "Active",
+    "CastRange": 1,
+    "EffectList": [
+      "DAMAGE:1",
+      "HEAL:3"
+    ]
+  },
+  {
+    "Id": "skill_flyingswallow",
+    "Name": "참새날기",
+    "Description": "참새처럼 날아서 때린다",
+    "CostSP": 0,
+    "Type": "Active",
+    "CastRange": 3,
+    "EffectList": [
+      "KNOCKBACK:2",
+      "DAMAGE:2"
+    ]
+  }
+]
