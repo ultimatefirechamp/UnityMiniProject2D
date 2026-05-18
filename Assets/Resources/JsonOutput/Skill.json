@@ -8,7 +8,7 @@
     "CastRange": 1,
     "EffectList": [
       "DAMAGE:1",
-      "HEAL:3"
+      "SELFHEAL:3"
     ]
   },
   {

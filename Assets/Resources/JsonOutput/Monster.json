@@ -1,0 +1,20 @@
+[
+  {
+    "Id": "mob_fighter",
+    "Name": "무술가",
+    "Description": "평범한 무술가다",
+    "HP": 10,
+    "AC": 2,
+    "ATK": 1,
+    "Range": 1
+  },
+  {
+    "Id": "mob_bomber",
+    "Name": "폭탄던지는자",
+    "Description": "거슬리게  자꾸 폭탄을 던져대는 놈들",
+    "HP": 5,
+    "AC": 0,
+    "ATK": 2,
+    "Range": 3
+  }
+]
