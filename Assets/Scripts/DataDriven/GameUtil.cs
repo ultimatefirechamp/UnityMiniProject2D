@@ -8,10 +8,10 @@ public static class GameUtil
     public static void LoadFullData()
     {
         // 게임 로딩할 때 불러올 데이터는 여기서! 
-        GameDataManager.Instance.LoadSkillData(GetFullDataPath("Skill"));
-        GameDataManager.Instance.LoadCharacterData(GetFullDataPath("Character"));
-        GameDataManager.Instance.LoadWeaponData(GetFullDataPath("Weapon"));
-        GameDataManager.Instance.LoadCostumeData(GetFullDataPath("Costume"));
+        GameDataManager.Instance.LoadSkillData("Skill");
+        GameDataManager.Instance.LoadCharacterData("Character");
+        GameDataManager.Instance.LoadWeaponData("Weapon");
+        GameDataManager.Instance.LoadCostumeData("Costume");
     }
 
     public static Sprite LoadSpriteCanBeNull(string spritePath)

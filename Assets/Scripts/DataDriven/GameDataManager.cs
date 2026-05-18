@@ -11,6 +11,7 @@ public class GameDataManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        GameUtil.LoadFullData();
     }
 
     // --- JsonUtility의 한계를 극복하기 위한 Wrapper 클래스 ---
@@ -26,29 +27,35 @@ public class GameDataManager : MonoBehaviour
     public Dictionary<string, WeaponData> WeaponDataList { get; private set; } = new Dictionary<string, WeaponData>();
     public Dictionary<string, CostumeData> CostumeDataList { get; private set; } = new Dictionary<string, CostumeData>();
 
-    private Dictionary<string, T> LoadData<T>(string jsonPath) where T : GameDataBase
+    private Dictionary<string, T> LoadData<T>(string tableName) where T : GameDataBase
     {
-        if (!File.Exists(jsonPath))
+        // 1. 경로 설정 (확장자 .json 제외!)
+        // Resources/JsonOutput 폴더
+        string resourcePath = $"JsonOutput/{tableName}";
+
+        // 2. 리소스 로드
+        TextAsset textAsset = Resources.Load<TextAsset>(resourcePath);
+
+        // 3. 파일 존재 여부 체크
+        if (textAsset == null)
         {
-            Debug.LogError($"[Error] 파일을 찾을 수 없습니다: {jsonPath}");
+            Debug.LogError($"[Error] 리소스를 찾을 수 없습니다: Resources/{resourcePath}");
             return new Dictionary<string, T>();
         }
 
         try
         {
-            string jsonString = File.ReadAllText(jsonPath);
+            string jsonString = textAsset.text;
 
-            // JsonUtility는 List<T>를 직접 못 가져오므로 Wrapper를 사용합니다.
-            // 만약 JSON이 배열 형태([ {...}, {...} ])라면 아래 방식이 필요합니다.
-            // 만약 JSON 구조가 { "items": [...] } 형태가 아니라면 
-            // jsonString을 수정하여 강제로 감싸는 트릭을 써야 합니다.
+            // 4. JsonUtility용 Wrapper 트릭 적용
             string wrappedJson = "{\"items\":" + jsonString + "}";
             SerializationWrapper<T> wrapper = JsonUtility.FromJson<SerializationWrapper<T>>(wrappedJson);
 
             if (wrapper != null && wrapper.items != null)
             {
                 Debug.Log($"{typeof(T).Name} 데이터를 {wrapper.items.Count}개 로드했습니다.");
-                return wrapper.items.ToDictionary(item => item.Id);
+                // ToDictionary를 사용하려면 각 클래스(T)에 Id 필드가 있어야 합니다.
+                return wrapper.items.ToDictionary(item => item.Id.ToString());
             }
         }
         catch (Exception ex)
