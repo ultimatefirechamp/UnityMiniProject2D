@@ -36,22 +36,43 @@ public class AIController : MonoBehaviour
             Debug.LogWarning("NULL path Error");
             return;
         }
-        Debug.LogWarning($"First path : {path[0]}");
-
-        if (path.Count > 0)
+        if (path.Count == 0) // There is no path to player
         {
+            return;
+        }
+        Debug.LogWarning($"First path : {path[0]}");
+        Vector2Int direction = path[0] - myPos;
+        Vector2Int destPos = path[0];
 
-            Vector2Int direction = path[0] - myPos;
-            Vector2Int destPos = myPos + direction;
-            if(MapManager.Inst.WorldToArrayPos((Vector2)playerPos) == destPos)
-            {
-                _controllerable.Attack(destPos);
-                return;
-            }
+        if (playerPos == destPos)
+        {
+            _controllerable.Attack(destPos);
+            return;
+        }
+
+        if (MapManager.Inst.IsOccupied(destPos) == false && MapManager.Inst.IsWalkable(destPos))
+        {
             _controllerable.Move(direction);
+            return;
+        } // Can move that dir
+
+        // Cant move that dir, check adjacent direction
+        var (leftDirection, rightDirection) = MyUtil.GetAdjacentDirections(direction);
+
+        // left dir check
+        destPos = myPos + leftDirection;
+        if (MapManager.Inst.IsOccupied(destPos) == false && MapManager.Inst.IsWalkable(destPos))
+        {
+            _controllerable.Move(leftDirection);
+            return;
+        }
+
+        // right dir check
+        destPos = myPos + rightDirection;
+        if (MapManager.Inst.IsOccupied(destPos) == false && MapManager.Inst.IsWalkable(destPos))
+        {
+            _controllerable.Move(rightDirection);
+            return;
         }
     }
-
-    public void Update()
-    { }
 }
