@@ -18,6 +18,7 @@ public class CharacterScript : MonoBehaviour, IControllable
         MaxHp = 10;
         Hp = 10;
         IsAlive = true;
+        AttackRange = 1;
     }
     private void Start()
     {
@@ -53,9 +54,19 @@ public class CharacterScript : MonoBehaviour, IControllable
     {
         BattleManager.Inst.RequestAttack(this, target);
     }
+    public void Heal(int healAmount)
+    {
+        Hp += healAmount;
+        if (Hp > MaxHp)
+        {
+            Hp = MaxHp;
+        }
+        OnDamaged?.Invoke(MaxHp, Hp);
+    }
     public void TakeDamage(int damage)
     {
         Hp -= damage;
+        Debug.Log($"{gameObject.name} take {damage} damage");
         OnDamaged?.Invoke(MaxHp,Hp);
         if (Hp <= 0)
         {

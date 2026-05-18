@@ -21,6 +21,12 @@ public class BattleManager : MonoBehaviour
     private void Start()
     {
         _enemyPrefab = PracticeResourceManager.Inst.LoadPrefab("Prefabs/Practice_KCK/Character/Enemy");
+        if(GameDataManager.Instance.GetSkill("skill_smash") == null)
+        {
+            Debug.LogWarning("Skill Data NULL");
+        }
+
+        Debug.Log((GameDataManager.Instance.GetSkill("skill_smash")).Name);
     }
     public static BattleManager Inst { get { return _instance; } }
     public void RegistEnemy(CharacterScript enemy)
@@ -30,13 +36,20 @@ public class BattleManager : MonoBehaviour
     public void RequestAttack(CharacterScript attacker, Vector2Int target)
     {
         var targetCharacter = MapManager.Inst.GetCharacterAtPosition(target);
-        var attackerPosition = attacker.GridPosition;
         if (targetCharacter == null)
         {
             Debug.LogWarning($"There is no character at {target}");
+            return;
         }
-        if(Vector2.SqrMagnitude(target-attackerPosition) <= Mathf.Pow(attacker.AttackRange, 2))
+        var attackerPosition = attacker.GridPosition;
+
+        int attackRangeSqr = attacker.AttackRange * attacker.AttackRange;
+        int distance = MyUtil.GetDistance(attackerPosition, target);
+        if (distance <= attacker.AttackRange)
         {
+            // 추후에 방어력이나 데미지 계산 요소도 넣어야 할텐데...
+            // TakeDamage는 순수 공격수치만 넣고
+            // 데미지 받는 쪽 내부에서 자신의 AC수치랑 함께 계산해서 하는걸로 해야하나.
             targetCharacter.TakeDamage(1);
         }
     }
