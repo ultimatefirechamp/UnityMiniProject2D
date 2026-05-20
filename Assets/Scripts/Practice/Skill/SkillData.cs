@@ -111,14 +111,6 @@ public class DashSlashEffect : Effect
 
         Vector2Int direction = target - caster.GridPosition;
 
-        // n칸 이동, 경로의 적들에게 데미지, 이동하려는 자리가 점유되어있다면 그 캐릭터 옮기기...
-        // 1. 이동방향 * n을 한칸씩 가면서 벽인지, 적인지를 체크
-        // 다음 방향 == 벽은 즉시 stop
-        // 다음 방향 == 적은 계속 진행
-        // 지나가는 적들을 일단 배열로 저장?
-        // pos = currentpos
-        // count = 0
-        // for (i = 0 ~ 4)
         Stack<CharacterScript> passingEnemy = new Stack<CharacterScript>();
         Vector2Int position = caster.GridPosition;
         int count = 0;
@@ -161,19 +153,6 @@ public class DashSlashEffect : Effect
                 break;
             }
         }
-        // {
-        // pos = pos + dir
-        // if (pos.wall) pos-dir; break 벽을 만나면 이전 위치로
-        // count++
-        // if (pos.occupied) enemyStack.enque(pos.character)
-        // }
-        // if(pos.occupied == false) playerMoveto(pos) <- 이 경우 enemy 옮기는 과정은 스킵
-        // for(i= 0 ~ count)
-        // {
-        // pos = pos - dir
-        // if(pos.occupied) enemyStack.deque.Forcemove(pos)
-        // else enemyStack.deque.Forcemove(pos) break
-        // }
     }
 }
 

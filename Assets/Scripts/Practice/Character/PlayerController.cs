@@ -89,7 +89,18 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        _character.Move(moveDirection);
+        if(Input.GetKey(KeyCode.LeftShift))
+        {
+            if(_character is CharacterScript player)
+            {
+                player.UseSkill("skill_flyingswallow", moveDirection+player.GridPosition);
+            }
+        }
+        else
+        {
+            _character.Move(moveDirection);
+        }
+
         BattleManager.Inst.TurnChange();
         Input.ResetInputAxes();
     }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -7,6 +9,7 @@ public class CharacterScript : MonoBehaviour, IControllable
     public event Action<Transform> OnMove;
     public event Action<int,int> OnDamaged;
     private Skill testingSkill;
+    Dictionary<string, Skill> _skillList;
     public int MaxHp { get; private set; }
     public int Hp { get; private set; }
     public int AC { get; private set; }
@@ -22,6 +25,7 @@ public class CharacterScript : MonoBehaviour, IControllable
         Hp = 10;
         IsAlive = true;
         AttackRange = 1;
+        _skillList = new Dictionary<string, Skill>();
     }
     private void Start()
     {
@@ -29,6 +33,7 @@ public class CharacterScript : MonoBehaviour, IControllable
         GridPosition = MapManager.Inst.WorldToArrayPos(transform.position);
         MapManager.Inst.OccupyTile(GridPosition, this);
         testingSkill = SkillFactory.CreateSkill(GameDataManager.Instance.GetSkill("skill_flyingswallow"));
+        _skillList["skill_flyingswallow"] = testingSkill;
 
     }
     void Init()
@@ -54,6 +59,14 @@ public class CharacterScript : MonoBehaviour, IControllable
         BattleManager.Inst.RequestSkill(this, target, testingSkill);
         //testingSkill.Execute(this, target);
     }
+    public void UseSkill(string skillName, Vector2Int target)
+    {
+        if(_skillList.TryGetValue(skillName, out var skill))
+        {
+            BattleManager.Inst.RequestSkill(this, target, skill);
+        }
+        Debug.LogWarning($"This Character don't have {skillName}");
+    }
     public void Move(Vector2Int direction)
     {
         // Request to Manager
@@ -78,6 +91,11 @@ public class CharacterScript : MonoBehaviour, IControllable
             Hp = MaxHp;
         }
         OnDamaged?.Invoke(MaxHp, Hp);
+    }
+    public void InstantKill()
+    {
+        Hp = 0;
+        IsAlive = false;
     }
     public void TakeDamage(int damage)
     {
