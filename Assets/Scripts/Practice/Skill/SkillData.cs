@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using System.Runtime.InteropServices;
 
 public enum EffectType
 {
@@ -118,6 +119,48 @@ public class DashSlashEffect : Effect
         // pos = currentpos
         // count = 0
         // for (i = 0 ~ 4)
+        Stack<CharacterScript> passingEnemy = new Stack<CharacterScript>();
+        Vector2Int position = caster.GridPosition;
+        int count = 0;
+        for(int i = 0; i < moveDistance; i++)
+        {
+            position = position + direction;
+            if(MapManager.Inst.IsWalkable(position) == false)
+            {
+                position = position - direction;
+                break;
+            }
+            count++;
+            if(MapManager.Inst.IsOccupied(position))
+            {
+                CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position);
+                enemy.TakeDamage(damage);
+                passingEnemy.Push(enemy);
+            }
+        }
+        bool isDestOccupied = MapManager.Inst.IsOccupied(position);
+        
+        MapManager.Inst.ForceMove(caster, position);
+
+        if(isDestOccupied == false)
+        {
+            return;
+        }
+        for (int i = 0; i < count; i++)
+        {
+            position = position - direction;
+            if(passingEnemy.Count == 0) { break; }
+            CharacterScript enemy = passingEnemy.Pop();
+            if(MapManager.Inst.IsOccupied(position))
+            {
+                MapManager.Inst.ForceMove(enemy, position);
+            }
+            else
+            {
+                MapManager.Inst.ForceMove(enemy, position);
+                break;
+            }
+        }
         // {
         // pos = pos + dir
         // if (pos.wall) pos-dir; break 벽을 만나면 이전 위치로
@@ -132,7 +175,6 @@ public class DashSlashEffect : Effect
         // else enemyStack.deque.Forcemove(pos) break
         // }
     }
-
 }
 
 [System.Serializable]
@@ -220,16 +262,25 @@ public static class SkillFactory
         foreach (var effectString  in data.EffectList)
         {
             string[] effectParam = effectString.Split(':');
-            if(effectParam.Length != 2)
+            int[] effectValues = new int[effectParam.Length-1];
+            if(effectParam.Length < 2)
             {
-                continue;
+                continue;   
+            }
+            for (int i = 1; i < effectParam.Length; i++)
+            {
+                if (int.TryParse(effectParam[i].Trim(), out int value) == false)
+                {
+                    continue;
+                }
+                effectValues[i-1] = value;
             }
             string effectName = effectParam[0].Trim();
-            if(int.TryParse(effectParam[1].Trim(), out int effectValue) == false)
-            {
-                continue;
-            }
-            Effect effect = SkillFactory.CreateEffect(effectName, effectValue);
+            //if(int.TryParse(effectParam[1].Trim(), out int effectValue) == false)
+            //{
+            //    continue;
+            //}
+            Effect effect = SkillFactory.CreateEffect(effectName, effectValues);
             if(effect == null)
             {
                 continue;
@@ -243,7 +294,7 @@ public static class SkillFactory
         }
         return new Skill(data.Id, data.Name,data.Description,data.CostSP, parsedSkillData, data.CastRange, parsedEffect);
     }
-    public static Effect CreateEffect(string typeString, int value)
+    public static Effect CreateEffect(string typeString, int[] value)
     {
         if(Enum.TryParse(typeString, true, out EffectType type) == false)
         {
@@ -252,13 +303,15 @@ public static class SkillFactory
         switch(type)
         {
             case EffectType.DAMAGE:
-                return new DamageEffect(value);
+                return new DamageEffect(value[0]);
             case EffectType.HEAL:
-                return new HealEffect(value);
+                return new HealEffect(value[0]);
             case EffectType.SELFHEAL:
-                return new SelfHealEffect(value);
+                return new SelfHealEffect(value[0]);
             case EffectType.KNOCKBACK:
-                return new KnockBackEffect(value);
+                return new KnockBackEffect(value[0]);
+            case EffectType.DASHSLASH:
+                return new DashSlashEffect(value);
         }
         return null;
     }
