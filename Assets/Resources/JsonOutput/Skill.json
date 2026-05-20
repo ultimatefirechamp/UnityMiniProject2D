@@ -19,8 +19,7 @@
     "Type": "Active",
     "CastRange": 3,
     "EffectList": [
-      "KNOCKBACK:2",
-      "DAMAGE:2"
+      "DASHSLASH:3:5"
     ]
   }
 ]
