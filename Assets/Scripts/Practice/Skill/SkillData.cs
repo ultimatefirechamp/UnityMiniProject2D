@@ -12,7 +12,8 @@ public enum EffectType
     HEAL,
     SELFHEAL,
     KNOCKBACK,
-    DASHSLASH
+    DASHSLASH,
+    WALLRUN
 }
 public enum SkillType
 {
@@ -103,7 +104,7 @@ public class KnockBackEffect : Effect
 public class DashSlashEffect : Effect
 {
     public DashSlashEffect(int[] values) : base(EffectType.DASHSLASH, values) { }
-    
+
     public override void ApplyEffect(CharacterScript caster, Vector2Int target)
     {
         int moveDistance = _values[0];
@@ -114,16 +115,16 @@ public class DashSlashEffect : Effect
         Stack<CharacterScript> passingEnemy = new Stack<CharacterScript>();
         Vector2Int position = caster.GridPosition;
         int count = 0;
-        for(int i = 0; i < moveDistance; i++)
+        for (int i = 0; i < moveDistance; i++)
         {
             position = position + direction;
-            if(MapManager.Inst.IsWalkable(position) == false)
+            if (MapManager.Inst.IsWalkable(position) == false)
             {
                 position = position - direction;
                 break;
             }
             count++;
-            if(MapManager.Inst.IsOccupied(position))
+            if (MapManager.Inst.IsOccupied(position))
             {
                 CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position);
                 enemy.TakeDamage(damage);
@@ -131,19 +132,19 @@ public class DashSlashEffect : Effect
             }
         }
         bool isDestOccupied = MapManager.Inst.IsOccupied(position);
-        
+
         MapManager.Inst.ForceMove(caster, position);
 
-        if(isDestOccupied == false)
+        if (isDestOccupied == false)
         {
             return;
         }
         for (int i = 0; i < count; i++)
         {
             position = position - direction;
-            if(passingEnemy.Count == 0) { break; }
+            if (passingEnemy.Count == 0) { break; }
             CharacterScript enemy = passingEnemy.Pop();
-            if(MapManager.Inst.IsOccupied(position))
+            if (MapManager.Inst.IsOccupied(position))
             {
                 MapManager.Inst.ForceMove(enemy, position);
             }
@@ -152,6 +153,48 @@ public class DashSlashEffect : Effect
                 MapManager.Inst.ForceMove(enemy, position);
                 break;
             }
+        }
+    }
+}
+
+public class WallRunEffect : Effect
+{
+    public WallRunEffect(int[] values) : base(EffectType.WALLRUN, values) { }
+    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    {
+        int moveDistance = _values[0];
+        int damage = _values[1];
+
+        Vector2Int oppositeDirection = caster.GridPosition - target;
+        // 입력한 방향과 역방향으로 distance만큼으로 이동
+        // 벽을 만나면 멈춤 
+        // 이동한 칸에 있던 적은 즉사
+        // 이동한 칸과 인접한 모든 적에게 데미지
+        // 
+        Vector2Int position = caster.GridPosition;
+        for (int i = 0; i < moveDistance; i++) 
+        {
+            position = position + oppositeDirection;
+            if(MapManager.Inst.IsWalkable(position) == false)
+            {
+                position = position - oppositeDirection;
+                break;
+            }
+        }
+        if(MapManager.Inst.IsOccupied(position) && position == caster.GridPosition)
+        {
+            CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position);
+            enemy.InstantKill();
+        }
+        MapManager.Inst.ForceMove(caster, position);
+        foreach(var direction in MyUtil.Directions)
+        {
+            CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position + direction);
+            if (enemy == null)
+            {
+                continue;
+            }
+            enemy.TakeDamage(damage);
         }
     }
 }

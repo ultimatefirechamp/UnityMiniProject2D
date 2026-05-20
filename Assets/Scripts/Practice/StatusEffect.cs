@@ -41,7 +41,7 @@ public class BombShuriken : StatusEffect
         Duration--;
         if (Duration <= 0)
         {
-            _target.TakeDamage(_damage);
+            _target.TakeDamage(_damage * Stack);
         }
     }
 }
