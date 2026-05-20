@@ -28,7 +28,7 @@ public class CharacterScript : MonoBehaviour, IControllable
         Init();
         GridPosition = MapManager.Inst.WorldToArrayPos(transform.position);
         MapManager.Inst.OccupyTile(GridPosition, this);
-        testingSkill = SkillFactory.CreateSkill(GameDataManager.Instance.GetSkill("skill_smash"));
+        testingSkill = SkillFactory.CreateSkill(GameDataManager.Instance.GetSkill("skill_flyingswallow"));
 
     }
     void Init()
@@ -59,15 +59,12 @@ public class CharacterScript : MonoBehaviour, IControllable
         // Request to Manager
         Vector2Int prevPos = GridPosition;
         Vector2Int destPos = GridPosition + direction;
-        if (MapManager.Inst.IsOccupied(destPos))
+        if (MapManager.Inst.IsOccupied(destPos) || MapManager.Inst.IsWalkable(destPos) == false)
         {
-            Debug.Log($"{destPos} IsOccupied");
             return;
         }
-        transform.position = (Vector2)transform.position + direction;
-        GridPosition = destPos;
         MapManager.Inst.MoveTo(prevPos, destPos, this);
-        OnMove?.Invoke(this.transform);
+        SetGridPosition(destPos);
     }
     public void Attack(Vector2Int target)
     {
@@ -91,6 +88,12 @@ public class CharacterScript : MonoBehaviour, IControllable
         {
             IsAlive = false;
         }
+    }
+    public void SetGridPosition(Vector2Int position)
+    {
+        GridPosition = position;
+        transform.position = MapManager.Inst.ArrayToWorldPos(position.x, position.y);
+        OnMove?.Invoke(this.transform);
     }
     private void OnDestroy()
     {
