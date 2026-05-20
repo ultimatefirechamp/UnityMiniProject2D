@@ -85,7 +85,6 @@ public class MapManager : MonoBehaviour
         _occupied.Remove(prev);
         _characterPositions.Remove(prev);
         _characterPositions[current] = character;
-
     }
     public void OccupyTile(Vector2Int current, CharacterScript character)
     {
@@ -116,7 +115,6 @@ public class MapManager : MonoBehaviour
         int arrayY = cellPos.y - mapOrigin.y;
         return new Vector2Int(arrayX, arrayY);
     }
-
     public Vector3 ArrayToWorldPos(int x, int y)
     {
         Vector3Int cellPos = new Vector3Int(mapOrigin.x + x, mapOrigin.y + y, 0);
@@ -141,6 +139,21 @@ public class MapManager : MonoBehaviour
             return true;
         }
         return false;
+    }
+    /// <summary>
+    /// Warning!! 이 메서드는 하나의 좌표에 한 캐릭터만이 위치하는 것을 보증하지 않습니다!
+    /// </summary>
+    public void ForceMove(CharacterScript mover, Vector2Int position)
+    {
+        Vector2Int prevPosition = mover.GridPosition;
+        if (_characterPositions[prevPosition] == mover)
+        {
+            _occupied.Remove(prevPosition);
+            _characterPositions.Remove(prevPosition);
+        }
+        _occupied.Add(position);
+        _characterPositions[position] = mover;
+        mover.SetGridPosition(position);
     }
     private void OnDrawGizmos()
     {
