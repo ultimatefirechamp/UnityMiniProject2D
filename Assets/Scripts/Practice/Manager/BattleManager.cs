@@ -9,7 +9,18 @@ public class BattleManager : MonoBehaviour
     private List<CharacterScript> _enemyList;
     private GameObject _enemyPrefab;
     public bool IsPlayerTurn { get; private set; }
+    
+    bool IsMyTurn(CharacterScript script)
+    {
+        if(script.CompareTag("Player") == IsPlayerTurn)
+        {
+            return true;
+        }
+        return false;
+    }
+    
     private static BattleManager _instance;
+    
     private void Awake()
     {
         if(_instance == null)
@@ -19,17 +30,22 @@ public class BattleManager : MonoBehaviour
         IsPlayerTurn = true;
         _enemyList = new List<CharacterScript>();
     }
+    
     private void Start()
     {
+        // 디버깅용으로 편의상 로드해둔 데이터들
         _enemyPrefab = PracticeResourceManager.Inst.LoadPrefab("Prefabs/Practice_KCK/Character/Enemy");
+        // 실제 인게임 상에서 배틀 매니저가 enemy 스폰에 직접적 관여 금지
         if(GameDataManager.Instance.GetSkill("skill_smash") == null)
         {
             Debug.LogWarning("Skill Data NULL");
         }
-
+        // 스킬도 확인 용으로 임시로 받은 데이터.
         Debug.Log((GameDataManager.Instance.GetSkill("skill_smash")).Name);
     }
+    
     public static BattleManager Inst { get { return _instance; } }
+    
     public void RegistEnemy(CharacterScript enemy)
     {
         _enemyList.Add(enemy);
@@ -54,20 +70,23 @@ public class BattleManager : MonoBehaviour
             targetCharacter.TakeDamage(1);
         }
     }
+
     public void RequestSkill(CharacterScript caster, Vector2Int target, Skill skill)
     {
         // skill check and execute Skill
-        if(IsPlayerTurn == false)
+        if(IsMyTurn(caster) == false)
         {
             return;
         }
+
         skill.Execute(caster,target);
     }
+
     private void Update()
     {
         if(IsPlayerTurn == false)
         {
-            if(Input.anyKeyDown)
+            if (Input.anyKeyDown)
             {
                 EnemyTurn();
                 Input.ResetInputAxes();
@@ -86,11 +105,11 @@ public class BattleManager : MonoBehaviour
     {
         foreach(var enemy in _enemyList)
         {
-            
             var controller = enemy.gameObject.GetComponent<AIController>();
-            controller.OnTurn();
+            controller.AITurn();
         }
     }
+
     public void TurnChange()
     {
         IsPlayerTurn = !IsPlayerTurn;
@@ -98,12 +117,14 @@ public class BattleManager : MonoBehaviour
         mainUI.GetComponent<PracticeMainUI>().SetCurrentTurn(IsPlayerTurn);
         Debug.Log($"Turn Changed : {IsPlayerTurn}");
     }
+
     public void SpawnEnemy()
     {
         GameObject spawnedEnemy = Instantiate(_enemyPrefab);
         spawnedEnemy.transform.position = new Vector2(0.5f, 0.5f);
         _enemyList.Add(spawnedEnemy.GetComponent<CharacterScript>());
     }
+
     public CharacterScript GetSpawnEnemy()
     {
         GameObject spawnedEnemy = Instantiate(_enemyPrefab);
