@@ -7,7 +7,7 @@ using UnityEngine.Rendering.Universal;
 public class BattleManager : MonoBehaviour
 {
     private List<CharacterScript> _enemyList;
-    private CharacterScript _player;
+    public CharacterScript _player; // 원래 이러면 안되지만... 아 귀찮다... 일단 직접 연결하고 나중에 따로 불러오도록 하는걸로
     private GameObject _enemyPrefab;
     private PracticeMainUI _mainUI;
     public bool IsPlayerTurn { get; private set; }
@@ -128,7 +128,6 @@ public class BattleManager : MonoBehaviour
                 enemy.OnActionEnd();
             }
         }
-
         Input.ResetInputAxes();
         TurnChange();
     }
@@ -146,23 +145,55 @@ public class BattleManager : MonoBehaviour
             EnemyTurn();
         }
     }
-    void ProcessTick()
+
+    public void ProcessTick()
     {
-        while(_player.AP < _player.APCost)
+        // ProcessTick에 진입했다는 것은 이미 플레이어턴이 한번은 진행되었다는 것을 내포함.
+        _player.OnActionEnd();
+        RefreshEnemyList();
+
+        while (_player.AP < _player.APCost)
         {
+            // player의 AP를 채우기만하고 별다른 검사를 하지 않아도 괜찮을 듯.
             _player.AddActionPoint(100);
             foreach(var enemy in _enemyList)
             {
+                // 현재 IsAlive를 건들거나 사용하는 로직을 짜지 않아서 isAlive판단 아직 안함
+                // 죽었을 때 행동을 넘기거나 하는건 AITurn내부 컨트롤러 같은 곳에서 판단?
+                // 죽었을 때 바로 Destroy시키지 말고 후에 턴 종료라고 선언되는 시점마다 리스트 정리하도록 시킬 예정.
+                // 턴종료 시점? ... 아마 ProcessTick 시작할때 (플레이어 턴 종료), ProcessTick 맨 아래 (AI턴 종료) 이렇게 두번..?
+                // Player가 두번 연속으로 행동할 수 있으면 그냥 리스트 정리가 몇번 연속으로 실행되기는 할 텐데...
+                // 아 몰라. 근데 얘 몇번이나 돌아가든 죽은 애들만 걸러내는 거니까 쓸데없는 계산 몇번하는 정도의 문제만 있지 큰 문제는 없겠지
                 enemy.AddActionPoint(100);
-                if(enemy.AP >= enemy.APCost)
+                while(enemy.AP >= enemy.APCost)
                 {
                     var controller = enemy.gameObject.GetComponent<AIController>();
+                    enemy.OnTurnStart();
+                    if (enemy.IsAlive == false)
+                    {
+                        continue;
+                    }
                     controller.AITurn();
                     enemy.OnActionEnd();
                 }
             }
         }
+
+        RefreshEnemyList();
+        _mainUI.SetCurrentTurn(true);
         Input.ResetInputAxes();
+    }
+
+    void RefreshEnemyList()
+    {
+        for(int i = _enemyList.Count-1; i >= 0; i--)
+        {
+            if (_enemyList[i] == null || _enemyList[i].IsAlive == false)
+            {
+                Destroy(_enemyList[i].gameObject);
+                _enemyList.RemoveAt(i);
+            }
+        }
     }
     // 이하는 디버그 용으로 만들었던 SpawnEnemy 메서드. 나중에 Spawn전용 클래스를 만들거나 ObjectManager를 두면 좋을 듯.
     public void SpawnEnemy()

@@ -35,6 +35,11 @@ public class AIController : MonoBehaviour
         {
             return;
         }
+        // 죽었다면 행동금지
+        if (bot.IsAlive == false)
+        {
+            return;
+        }
         // 현재 체력이 20% 이하 OR 사지절단 상태라면 -> 자폭
         // 미구현
         // 플레이어가 사정거리 안에 있다면 -> 공격
