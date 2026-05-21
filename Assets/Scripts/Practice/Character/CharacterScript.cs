@@ -36,6 +36,7 @@ public class CharacterScript : MonoBehaviour, IControllable
         MapManager.Inst.OccupyTile(GridPosition, this);
         testingSkill = SkillFactory.CreateSkill(GameDataManager.Instance.GetSkill("skill_flyingswallow"));
         _skillList["skill_flyingswallow"] = testingSkill;
+        _statusList = new Dictionary<string, StatusEffect>();
 
     }
     void Init()
@@ -43,6 +44,7 @@ public class CharacterScript : MonoBehaviour, IControllable
         HPBarGroupScript hpbarGroup = PracticeUIManager.Inst.GetCreatedUI(UIType.HPBarGroup).GetComponent<HPBarGroupScript>();
         // register this character to Ui
         hpbarGroup.RegisterCharacter(this);
+
     }
     public void SetCharacter(MonsterData data)
     {
@@ -76,7 +78,6 @@ public class CharacterScript : MonoBehaviour, IControllable
             return;
         }
         MapManager.Inst.MoveTo(prevPos, destPos, this);
-        SetGridPosition(destPos);
     }
     public void Attack(Vector2Int target)
     {

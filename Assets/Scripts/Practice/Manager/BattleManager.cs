@@ -127,7 +127,7 @@ public class BattleManager : MonoBehaviour
         _mainUI.SetCurrentTurn(IsPlayerTurn);
         if(IsPlayerTurn)
         {
-            _player.OnTurnStart();
+            //_player.OnTurnStart();
         }
         else
         {
@@ -142,7 +142,7 @@ public class BattleManager : MonoBehaviour
         spawnedEnemy.transform.position = new Vector2(0.5f, 0.5f);
         _enemyList.Add(spawnedEnemy.GetComponent<CharacterScript>());
     }
-
+    
     public CharacterScript GetSpawnEnemy()
     {
         GameObject spawnedEnemy = Instantiate(_enemyPrefab);
