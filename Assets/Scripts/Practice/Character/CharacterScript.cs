@@ -17,6 +17,7 @@ public class CharacterScript : MonoBehaviour, IControllable
     public int ATK { get; private set; }
     public bool IsAlive { get; private set; }
     public Vector2Int GridPosition { get; private set; }
+    Dictionary<string, StatusEffect> _statusList;
     private bool _drawCheck = false;
     public int AttackRange { get; private set; }
     public string Name { get; private set; }
@@ -51,9 +52,6 @@ public class CharacterScript : MonoBehaviour, IControllable
         AttackRange = data.Range;
         ATK = data.ATK;
         AC = data.AC;
-    }
-    private void Update()
-    {
     }
     public void Skill(Vector2Int target)
     {
@@ -123,11 +121,25 @@ public class CharacterScript : MonoBehaviour, IControllable
         transform.position = MapManager.Inst.ArrayToWorldPos(position.x, position.y);
         OnMove?.Invoke(this.transform);
     }
+    public void OnTurnStart()
+    {
+        List<string> removeList = new List<string>();
+        foreach(var status in _statusList.Values)
+        {
+            status.OnTurnTick();
+            if(status.Stack == 0 || status.Duration == 0)
+            {
+                removeList.Add(status.Name);
+            }
+        }
+        foreach(var status in removeList)
+        {
+            _statusList.Remove(status);
+        }
+    }
     private void OnDestroy()
     {
         HPBarGroupScript hpbarGroup = PracticeUIManager.Inst.GetCreatedUI(UIType.HPBarGroup).GetComponent<HPBarGroupScript>();
         hpbarGroup.UnRegisterCharacter(this);
     }
-
-
 }
