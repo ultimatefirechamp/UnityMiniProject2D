@@ -7,7 +7,9 @@ using UnityEngine.Rendering.Universal;
 public class BattleManager : MonoBehaviour
 {
     private List<CharacterScript> _enemyList;
+    private CharacterScript _player;
     private GameObject _enemyPrefab;
+    private PracticeMainUI _mainUI;
     public bool IsPlayerTurn { get; private set; }
     
     bool IsMyTurn(CharacterScript script)
@@ -33,6 +35,8 @@ public class BattleManager : MonoBehaviour
     
     private void Start()
     {
+        _mainUI = PracticeUIManager.Inst.GetCreatedUI(UIType.MainUI).GetComponent<PracticeMainUI>();
+
         // 디버깅용으로 편의상 로드해둔 데이터들
         _enemyPrefab = PracticeResourceManager.Inst.LoadPrefab("Prefabs/Practice_KCK/Character/Enemy");
         // 실제 인게임 상에서 배틀 매니저가 enemy 스폰에 직접적 관여 금지
