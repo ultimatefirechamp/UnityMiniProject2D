@@ -68,8 +68,9 @@ public class CharacterScript : MonoBehaviour, IControllable
         if(_skillList.TryGetValue(skillName, out var skill))
         {
             BattleManager.Inst.RequestSkill(this, target, skill);
+            return;
         }
-        Debug.LogWarning($"This Character don't have {skillName}");
+        Debug.LogWarning($"This Character don't have {skillName} {gameObject.name}");
     }
     public void Move(Vector2Int direction)
     {
@@ -148,9 +149,13 @@ public class CharacterScript : MonoBehaviour, IControllable
     {
         AP -= APCost;
     }
-    private void OnDestroy()
+    private void OnDisable()
     {
+        MapManager.Inst.ClearTile(GridPosition);
         HPBarGroupScript hpbarGroup = PracticeUIManager.Inst.GetCreatedUI(UIType.HPBarGroup).GetComponent<HPBarGroupScript>();
         hpbarGroup.UnRegisterCharacter(this);
+    }
+    private void OnDestroy()
+    {
     }
 }

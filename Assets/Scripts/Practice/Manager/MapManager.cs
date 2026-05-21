@@ -195,6 +195,17 @@ public class MapManager : MonoBehaviour
             _occupied.Remove(first);
         }
     }
+    public void ClearTile(Vector2Int position)
+    {
+        if(_occupied.Contains(position))
+        {
+            _occupied.Remove(position);
+        }
+        if(_characterPositions.ContainsKey(position))
+        {
+            _characterPositions.Remove(position);
+        }
+    }
     private void OnDrawGizmos()
     {
         if(_walkableMap == null)

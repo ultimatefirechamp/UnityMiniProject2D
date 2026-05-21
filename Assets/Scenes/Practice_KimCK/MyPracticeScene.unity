@@ -2851,6 +2851,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40f4ec64f9eef1d41bb230d736a163b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealOnKill
+--- !u!114 &1608699960 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2785324009162977005, guid: 98d263eb159f6e44c82ddda15da26068, type: 3}
+  m_PrefabInstance: {fileID: 997368337436764523}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608699958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 418dfe020c90a124c8c8c18860b09509, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterScript
 --- !u!1 &1628179134
 GameObject:
   m_ObjectHideFlags: 0
@@ -9847,6 +9858,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4921123769451777558, guid: 07d624553ef596e42b36e133bd3da36d, type: 3}
+      propertyPath: _player
+      value: 
+      objectReference: {fileID: 1608699960}
     - target: {fileID: 6461379347725069541, guid: 07d624553ef596e42b36e133bd3da36d, type: 3}
       propertyPath: m_Name
       value: BattleManager

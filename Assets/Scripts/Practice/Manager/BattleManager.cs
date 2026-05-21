@@ -181,7 +181,6 @@ public class BattleManager : MonoBehaviour
 
         RefreshEnemyList();
         _mainUI.SetCurrentTurn(true);
-        Input.ResetInputAxes();
     }
 
     void RefreshEnemyList()

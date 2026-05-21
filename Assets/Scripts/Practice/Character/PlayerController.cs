@@ -102,7 +102,6 @@ public class PlayerController : MonoBehaviour
         }
 
         BattleManager.Inst.ProcessTick();
-        Input.ResetInputAxes();
     }
     void SkillInputHandle()
     {
