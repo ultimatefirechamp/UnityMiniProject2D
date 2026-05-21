@@ -11,20 +11,19 @@ public class CharacterScript : MonoBehaviour, IControllable
     private Skill testingSkill;
     public event Action<CharacterScript> OnKillEvent;
     Dictionary<string, Skill> _skillList;
-    
-    public int MaxHp { get; private set; }
-    public int Hp { get; private set; }
-    public int AC { get; private set; }
+
+    public int MaxHp { get; private set; } = 10;
+    public int Hp { get; private set; } = 10;
+    public int AC { get; private set; } = 0;
     public int AP { get; private set; } = 0;
-    public int APCost { get; private set; }
-    public int APCostDefault { get; private set; }
-    public int ATK { get; private set; }
-    public bool IsAlive { get; private set; }
+    public int APCost { get; private set; } = 100;
+    public int APCostDefault { get; private set; } = 100;
+    public int ATK { get; private set; } = 1;
+    public bool IsAlive { get; private set; } = true;
     public Vector2Int GridPosition { get; private set; }
     Dictionary<string, StatusEffect> _statusList;
-    private bool _drawCheck = false;
-    public int AttackRange { get; private set; }
-    public string Name { get; private set; }
+    public int AttackRange { get; private set; } = 1;
+    public string Name { get; private set; } = "popoi";
     private void Awake()
     {
         MaxHp = 10;
