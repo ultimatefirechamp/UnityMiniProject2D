@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviour
         {
             if(_character is CharacterScript player)
             {
-                player.UseSkill("skill_flyingswallow", moveDirection+player.GridPosition);
+                player.UseSkill("skill_flyingswallow", moveDirection + player.GridPosition);
             }
         }
         else
@@ -101,7 +101,7 @@ public class PlayerController : MonoBehaviour
             _character.Move(moveDirection);
         }
 
-        BattleManager.Inst.TurnChange();
+        BattleManager.Inst.ProcessTick();
         Input.ResetInputAxes();
     }
     void SkillInputHandle()
