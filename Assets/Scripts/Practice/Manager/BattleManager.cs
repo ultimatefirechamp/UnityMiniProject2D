@@ -86,42 +86,56 @@ public class BattleManager : MonoBehaviour
         skill.Execute(caster,target);
     }
 
-    private void Update()
+    void TurnStart()
     {
-        if(IsPlayerTurn == false)
+        if(IsPlayerTurn)
         {
-            if (Input.anyKeyDown)
+            _player.OnTurnStart();
+        }
+        else
+        {
+            foreach (var enemy in _enemyList)
             {
-                EnemyTurn();
-                Input.ResetInputAxes();
-                TurnChange();
-                // AI가 일단은 저는... 그 원래 최단경로 자체는 보존시키고 싶고
-                // 만약 가려는 길에 누군가가 서있으면 가려는 방향이 1,0 -> 1,1 | 1,0 | 1,-1 이렇게 세칸을 좀 비어있는 곳을 가고 싶다.
-                // 1. 누군가가 서있으면 <- 검출이 안되고 있는 상황. 이래서 이러면 적들의 움직임을 하나씩 다라라라라 이동하고 그게 보이게 시키거나               
-                // 2. 아니면... 따로 적들의 위치를 갖고 있는 데이터를 만들어서 거기서 한번 보게 시키거나... 해야할것 같습니다.
-                // tile에 occupied를 갖고 있는게 좋다.
-                // 점유하고 있는가?만 따지면 HashSet이기도 하고...
-                // 점유중인 캐릭터를 알고 싶으면 Dictionary를 사용해야할 것 같습니다...
+                enemy.OnTurnStart();
             }
         }
     }
+    void TurnEnd()
+    {
+
+    }
+ 
     public void EnemyTurn()
     {
+        TurnStart();
         foreach(var enemy in _enemyList)
         {
             var controller = enemy.gameObject.GetComponent<AIController>();
-            controller.AITurn();
+            if(controller != null)
+            {
+                controller.AITurn();
+            }
         }
+        TurnEnd();
+        Input.ResetInputAxes();
+        TurnChange();
     }
 
     public void TurnChange()
     {
         IsPlayerTurn = !IsPlayerTurn;
-        GameObject mainUI = PracticeUIManager.Inst.GetCreatedUI(UIType.MainUI);
-        mainUI.GetComponent<PracticeMainUI>().SetCurrentTurn(IsPlayerTurn);
-        Debug.Log($"Turn Changed : {IsPlayerTurn}");
+        _mainUI.SetCurrentTurn(IsPlayerTurn);
+        if(IsPlayerTurn)
+        {
+            _player.OnTurnStart();
+        }
+        else
+        {
+            EnemyTurn();
+        }
     }
 
+    // 이하는 디버그 용으로 만들었던 SpawnEnemy 메서드. 나중에 Spawn전용 클래스를 만들거나 ObjectManager를 두면 좋을 듯.
     public void SpawnEnemy()
     {
         GameObject spawnedEnemy = Instantiate(_enemyPrefab);

@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         MoveInputHandle();
-        SkillInputHandle();
+        //SkillInputHandle();
     }
     void MoveInputHandle()
     {
