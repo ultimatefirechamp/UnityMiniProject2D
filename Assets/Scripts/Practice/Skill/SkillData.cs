@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.Rendering.DebugUI;
 
 public enum EffectType
 {
@@ -47,43 +48,31 @@ public abstract class Effect
     public abstract void ApplyEffect(CharacterScript caster, Vector2Int target);
 }
 
-public class DamageEffect : Effect
+public class HealEffectLogic : IEffectLogic
 {
-    public DamageEffect(int value) : base(EffectType.DAMAGE, value) { }
-    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
     {
+        int healAmount = payload.Values[0];
         var targetCharacter = MapManager.Inst.GetCharacterAtPosition(target);
         if (targetCharacter != null)
         {
-            targetCharacter.TakeDamage(_value, caster);
+            targetCharacter.Heal(healAmount);
         }
     }
 }
-public class HealEffect : Effect
+public class SelfHealEffectLogic : IEffectLogic
 {
-    public HealEffect(int value) : base(EffectType.SELFHEAL, value) { }
-    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
     {
-        var targetCharacter = MapManager.Inst.GetCharacterAtPosition(target);
-        if (targetCharacter != null)
-        {
-            targetCharacter.Heal(_value);
-        }
+        int healAmount = payload.Values[0];
+        caster.Heal(healAmount);
     }
 }
-public class SelfHealEffect : Effect
+public class KnockBackEffectLogic : IEffectLogic
 {
-    public SelfHealEffect(int value) : base(EffectType.HEAL, value) { }
-    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int targetPos)
     {
-        caster.Heal(_value);
-    }
-}
-public class KnockBackEffect : Effect
-{
-    public KnockBackEffect(int value) : base(EffectType.KNOCKBACK, value) { }
-    public override void ApplyEffect(CharacterScript caster, Vector2Int targetPos)
-    {
+        int knockDistance = payload.Values[0];
         var target = MapManager.Inst.GetCharacterAtPosition(targetPos);
         if (target == null)
         {
@@ -91,7 +80,7 @@ public class KnockBackEffect : Effect
         }
         int count = 0;
         Vector2Int direction = targetPos - caster.GridPosition;
-        for (count = 0; count < _value; count++)
+        for (count = 0; count < knockDistance; count++)
         {
             Vector2Int knockbackPos = target.GridPosition + direction;
             if (MapManager.Inst.IsWalkable(knockbackPos) == false || MapManager.Inst.IsOccupied(knockbackPos)) // can't knock back
@@ -102,14 +91,12 @@ public class KnockBackEffect : Effect
         }
     }
 }
-public class DashSlashEffect : Effect
+public class DashSlashEffectLogic : IEffectLogic
 {
-    public DashSlashEffect(int[] values) : base(EffectType.DASHSLASH, values) { }
-
-    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
     {
-        int moveDistance = _values[0];
-        int damage = _values[1];
+        int moveDistance = payload.Values[0];
+        int damage = payload.Values[1];
 
         Vector2Int direction = target - caster.GridPosition;
         
@@ -152,66 +139,6 @@ public class DashSlashEffect : Effect
             }
             enemy.TakeDamage(damage, caster);
 
-        }
-    }
-    public void ALT_ApplyEffect(CharacterScript caster, Vector2Int target)
-    {
-        int moveDistance = _values[0];
-        int damage = _values[1];
-
-        Vector2Int direction = target - caster.GridPosition;
-
-        Stack<CharacterScript> pushGroup = new Stack<CharacterScript>();
-        List<CharacterScript> passingEnemy = new List<CharacterScript>();
-        Vector2Int position = caster.GridPosition;
-        int count = 0;
-        // 위치이동 전 검사 파트
-        for (int i = 0; i < moveDistance; i++)
-        {
-            position = position + direction;
-            if (MapManager.Inst.IsWalkable(position) == false)
-            {
-                position = position - direction;
-                break;
-            }
-            count++;
-            if (MapManager.Inst.IsOccupied(position))
-            {
-                CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position);
-                pushGroup.Push(enemy);
-                passingEnemy.Add(enemy);
-            }
-        }
-        // 위치 이동파트
-        bool isDestOccupied = MapManager.Inst.IsOccupied(position);
-        MapManager.Inst.ForceMove(caster, position);
-        for (int i = 0; i < count; i++)
-        {
-            if(isDestOccupied == false)
-            {
-                break; 
-            }
-            position = position - direction;
-            if (pushGroup.Count == 0) { break; }
-            CharacterScript enemy = pushGroup.Pop();
-            if (MapManager.Inst.IsOccupied(position))
-            {
-                MapManager.Inst.ForceMove(enemy, position);
-            }
-            else
-            {
-                MapManager.Inst.ForceMove(enemy, position);
-                break;
-            }
-        }
-
-        // 데미지 입히는 파트
-        foreach(var enemy in passingEnemy)
-        {
-            if(enemy != null)
-            {
-                enemy.TakeDamage(damage, caster);
-            }
         }
     }
 }
@@ -276,85 +203,46 @@ public class SkillData : GameDataBase // 데이터 드리븐을 통해 받을 �
     public int CastRange;
     public string[] EffectList;
 }
-
-public class Skill // 실질적으로 게임에 적용될 양식. 스킬이 객체적으로 생성될 때 SkillData -> Skill로 변환하면서 생성.
+public struct EffectPayload
 {
-    public string Id { get; private set; }
-    public string Name { get; private set; }
-    public string Description { get; private set; }
+    public EffectType Type;
+    public int[] Values;
+}
+public interface IEffectLogic
+{
+    void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target);
+}
 
-    // 
-    // 강사님 피드백 : 차라리 Data를 소유하고 있는 구조는 어떤가?
-    // 스킬 레코드
-    public int CostSP { get; private set; }
-    public SkillType Type { get; private set; }
-    public int CastRange { get; private set; }
-    List<Effect> _effectList;
-    public Skill(string id, string name, string desc, int costSp, SkillType type, int castRange, List<Effect> effectList)
+public class DamageEffectLogic : IEffectLogic
+{
+    public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
     {
-        Id = id;
-        Name = name;
-        Description = desc;
-        CostSP = costSp;
-        Type = type;
-        CastRange = castRange;
-        _effectList = effectList;
-    }
-    public Skill(string id, string name, string desc, int costSP)
-    {
-        Id = id;
-        Name = name;
-        Description = desc;
-        CostSP = costSP;
-    }
-    public void SetSkillType(SkillType type)
-    {
-        Type = type;
-    }
-    public void SetCastRange(int range)
-    {
-        CastRange = range;
-    }
-    public void SetEffectList(List<Effect> effectList)
-    {
-        _effectList = effectList;
-    }
-    public void SetEffects(List<Effect> effectList)
-    {
-        _effectList = effectList;
-    }
-    public void Execute(CharacterScript caster, Vector2Int opponent)
-    {
-        foreach(var effect in _effectList)
+        int damage = payload.Values[0];
+        var targetCharacter = MapManager.Inst.GetCharacterAtPosition(target);
+        if (targetCharacter != null)
         {
-            effect.ApplyEffect(caster, opponent);
+            targetCharacter.TakeDamage(damage, caster);
         }
     }
 }
 
-public static class SkillFactory
+public class SkillRecord
 {
-    public static Skill CreateSkill(SkillData data)
+    public SkillData Data { get; private set; }
+    public SkillType Type { get; private set; }
+    public List<EffectPayload> Effects { get; private set; }
+
+    public SkillRecord(SkillData data)
     {
-        // 방해된다... 코드 멋대로 작성하지 말아줘 IDE야...
-        // 안보이자나...
-
-        // 스킬타입 파싱
-        if(Enum.TryParse(data.Type, true, out SkillType parsedSkillData) == false)
-        {
-            parsedSkillData = SkillType.NONE;
-        }
-        // effect list 파싱
-        // string데이터 양식은 DAMAGE:4 같은 EffectType:Value
-        List<Effect> parsedEffect = new List<Effect>();
-
-        foreach (var effectString  in data.EffectList)
+        Data = data;
+        Effects = new List<EffectPayload>();
+        foreach (var effectString in data.EffectList)
         {
             string[] effectParam = effectString.Split(':');
-            int[] effectValues = new int[effectParam.Length-1];
-            if(effectParam.Length < 2)
+            int[] effectValues = new int[effectParam.Length - 1];
+            if (effectParam.Length < 2)
             {
-                continue;   
+                continue;
             }
             for (int i = 1; i < effectParam.Length; i++)
             {
@@ -362,46 +250,181 @@ public static class SkillFactory
                 {
                     continue;
                 }
-                effectValues[i-1] = value;
+                effectValues[i - 1] = value;
             }
-            string effectName = effectParam[0].Trim();
-            //if(int.TryParse(effectParam[1].Trim(), out int effectValue) == false)
-            //{
-            //    continue;
-            //}
-            Effect effect = SkillFactory.CreateEffect(effectName, effectValues);
-            if(effect == null)
+            if(Enum.TryParse(effectParam[0].Trim(),true, out EffectType effectType))
             {
-                continue;
+                Effects.Add(new EffectPayload { Type = effectType, Values = effectValues });  
             }
-            parsedEffect.Add(effect);
         }
 
-        if(parsedEffect.Count == 0)
-        {
-            return null;
-        }
-        return new Skill(data.Id, data.Name,data.Description,data.CostSP, parsedSkillData, data.CastRange, parsedEffect);
     }
-    public static Effect CreateEffect(string typeString, int[] value)
+
+}
+
+public class Skill
+{
+    public SkillRecord Record { get; private set; }
+    public Skill(SkillRecord record)
     {
-        if(Enum.TryParse(typeString, true, out EffectType type) == false)
+        Record = record;
+    }
+    public string Name { get { return Record.Data.Name; } }
+    public string Description { get { return Record.Data.Description; } }
+    public int CastRange { get { return Record.Data.CastRange; } }
+
+    public void Execute(CharacterScript caster, Vector2Int target)
+    {
+        foreach(var payload in Record.Effects)
         {
-            return null;
+            EffectProcessor.ApplyEffect(payload, caster, target);
         }
-        switch(type)
-        {
-            case EffectType.DAMAGE:
-                return new DamageEffect(value[0]);
-            case EffectType.HEAL:
-                return new HealEffect(value[0]);
-            case EffectType.SELFHEAL:
-                return new SelfHealEffect(value[0]);
-            case EffectType.KNOCKBACK:
-                return new KnockBackEffect(value[0]);
-            case EffectType.DASHSLASH:
-                return new DashSlashEffect(value);
-        }
-        return null;
     }
 }
+
+public static class EffectProcessor
+{
+    public static readonly Dictionary<EffectType, IEffectLogic> _handlers = new Dictionary<EffectType, IEffectLogic>()
+    {
+        { EffectType.DAMAGE, new DamageEffectLogic() },
+        { EffectType.HEAL, new HealEffectLogic() },
+        { EffectType.SELFHEAL, new SelfHealEffectLogic() },
+        { EffectType.DASHSLASH, new DashSlashEffectLogic() }
+    };
+    public static void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
+    {
+        if(_handlers.TryGetValue(payload.Type, out var effectLogic))
+        {
+            effectLogic.ApplyEffect(payload,caster, target);
+        }
+    }
+}
+
+//public class Skill // 실질적으로 게임에 적용될 양식. 스킬이 객체적으로 생성될 때 SkillData -> Skill로 변환하면서 생성.
+//{
+//    public string Id { get; private set; }
+//    public string Name { get; private set; }
+//    public string Description { get; private set; }
+
+//    // 
+//    // 강사님 피드백 : 차라리 Data를 소유하고 있는 구조는 어떤가?
+//    // 스킬 레코드
+//    public int CostSP { get; private set; }
+//    public SkillType Type { get; private set; }
+//    public int CastRange { get; private set; }
+//    List<Effect> _effectList;
+//    public Skill(string id, string name, string desc, int costSp, SkillType type, int castRange, List<Effect> effectList)
+//    {
+//        Id = id;
+//        Name = name;
+//        Description = desc;
+//        CostSP = costSp;
+//        Type = type;
+//        CastRange = castRange;
+//        _effectList = effectList;
+//    }
+//    public Skill(string id, string name, string desc, int costSP)
+//    {
+//        Id = id;
+//        Name = name;
+//        Description = desc;
+//        CostSP = costSP;
+//    }
+//    public void SetSkillType(SkillType type)
+//    {
+//        Type = type;
+//    }
+//    public void SetCastRange(int range)
+//    {
+//        CastRange = range;
+//    }
+//    public void SetEffectList(List<Effect> effectList)
+//    {
+//        _effectList = effectList;
+//    }
+//    public void SetEffects(List<Effect> effectList)
+//    {
+//        _effectList = effectList;
+//    }
+//    public void Execute(CharacterScript caster, Vector2Int opponent)
+//    {
+//        foreach(var effect in _effectList)
+//        {
+//            effect.ApplyEffect(caster, opponent);
+//        }
+//    }
+//}
+
+//public static class SkillFactory
+//{
+//    public static Skill CreateSkill(SkillData data)
+//    {
+//        // 방해된다... 코드 멋대로 작성하지 말아줘 IDE야...
+//        // 안보이자나...
+
+//        // 스킬타입 파싱
+//        if(Enum.TryParse(data.Type, true, out SkillType parsedSkillData) == false)
+//        {
+//            parsedSkillData = SkillType.NONE;
+//        }
+//        // effect list 파싱
+//        // string데이터 양식은 DAMAGE:4 같은 EffectType:Value
+//        List<Effect> parsedEffect = new List<Effect>();
+
+//        foreach (var effectString  in data.EffectList)
+//        {
+//            string[] effectParam = effectString.Split(':');
+//            int[] effectValues = new int[effectParam.Length-1];
+//            if(effectParam.Length < 2)
+//            {
+//                continue;   
+//            }
+//            for (int i = 1; i < effectParam.Length; i++)
+//            {
+//                if (int.TryParse(effectParam[i].Trim(), out int value) == false)
+//                {
+//                    continue;
+//                }
+//                effectValues[i-1] = value;
+//            }
+//            string effectName = effectParam[0].Trim();
+//            //if(int.TryParse(effectParam[1].Trim(), out int effectValue) == false)
+//            //{
+//            //    continue;
+//            //}
+//            Effect effect = SkillFactory.CreateEffect(effectName, effectValues);
+//            if(effect == null)
+//            {
+//                continue;
+//            }
+//            parsedEffect.Add(effect);
+//        }
+
+//        if(parsedEffect.Count == 0)
+//        {
+//            return null;
+//        }
+//        return new Skill(data.Id, data.Name,data.Description,data.CostSP, parsedSkillData, data.CastRange, parsedEffect);
+//    }
+//    public static Effect CreateEffect(string typeString, int[] value)
+//    {
+//        if(Enum.TryParse(typeString, true, out EffectType type) == false)
+//        {
+//            return null;
+//        }
+//        switch(type)
+//        {
+//            case EffectType.DAMAGE:
+//                return new DamageEffect(value[0]);
+//            case EffectType.HEAL:
+//                return new HealEffect(value[0]);
+//            case EffectType.SELFHEAL:
+//                return new SelfHealEffect(value[0]);
+//            case EffectType.KNOCKBACK:
+//                return new KnockBackEffect(value[0]);
+//            case EffectType.DASHSLASH:
+//                return new DashSlashEffect(value);
+//        }
+//        return null;
+//    }
+//}

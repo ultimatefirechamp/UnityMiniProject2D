@@ -37,7 +37,8 @@ public class CharacterScript : MonoBehaviour, IControllable
         Init();
         GridPosition = MapManager.Inst.WorldToArrayPos(transform.position);
         MapManager.Inst.OccupyTile(GridPosition, this);
-        testingSkill = SkillFactory.CreateSkill(GameDataManager.Instance.GetSkill("skill_flyingswallow"));
+        SkillRecord record = GameDataManager.Instance.GetSkillRecord("skill_flyingswallow");
+        testingSkill = new Skill(record);
         _skillList["skill_flyingswallow"] = testingSkill;
         _statusList = new Dictionary<string, StatusEffect>();
 

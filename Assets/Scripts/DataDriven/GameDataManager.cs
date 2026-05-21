@@ -24,6 +24,7 @@ public class GameDataManager : MonoBehaviour
 
     public Dictionary<string, CharacterData> CharacterDataList { get; private set; } = new Dictionary<string, CharacterData>();
     public Dictionary<string, SkillData> SkillDataList { get; private set; } = new Dictionary<string, SkillData>();
+    public Dictionary<string, SkillRecord> SkillRecordList { get; private set; } = new Dictionary<string, SkillRecord>();
     public Dictionary<string, WeaponData> WeaponDataList { get; private set; } = new Dictionary<string, WeaponData>();
     public Dictionary<string, CostumeData> CostumeDataList { get; private set; } = new Dictionary<string, CostumeData>();
     public Dictionary<string, MonsterData> MonsterDataList { get; private set; } = new Dictionary<string, MonsterData>();
@@ -70,6 +71,11 @@ public class GameDataManager : MonoBehaviour
     public void LoadSkillData(string jsonPath)
     {
         SkillDataList = LoadData<SkillData>(jsonPath);
+        foreach(var skillData in SkillDataList)
+        {
+            SkillRecord record = new SkillRecord(skillData.Value);
+            SkillRecordList.Add(skillData.Key, record);
+        }
     }
 
     public void LoadCharacterData(string jsonPath)
@@ -107,6 +113,12 @@ public class GameDataManager : MonoBehaviour
         if (SkillDataList == null || string.IsNullOrEmpty(id)) return null;
 
         return SkillDataList.TryGetValue(id, out var item) ? item : null;
+    }
+    public SkillRecord GetSkillRecord(string id)
+    {
+        if (SkillRecordList == null || string.IsNullOrEmpty(id)) return null;
+
+        return SkillRecordList.TryGetValue(id, out var item) ? item : null;
     }
 
     public WeaponData GetWeaponData(string id)
