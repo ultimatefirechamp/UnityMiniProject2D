@@ -138,7 +138,7 @@ public class DashSlashEffect : Effect
             isDestOccupied = MapManager.Inst.IsOccupied(checkPosition);
             MapManager.Inst.Swap(originPosition, checkPosition);
             checkPosition = checkPosition - direction;
-            if (isDestOccupied)
+            if (isDestOccupied == false)
             {
                 break;
             }
