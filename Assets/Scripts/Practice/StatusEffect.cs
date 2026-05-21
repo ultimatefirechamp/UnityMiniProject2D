@@ -45,3 +45,12 @@ public class BombShuriken : StatusEffect
         }
     }
 }
+public class Poison : StatusEffect
+{
+    public Poison(int duration, CharacterScript target) : base("Status_Poison", "독", duration, 99, target) { }
+    public override void OnTurnTick()
+    {
+        _target.TakeDamage(Stack);   
+        Duration--;
+    }
+}

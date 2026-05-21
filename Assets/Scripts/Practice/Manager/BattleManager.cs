@@ -14,6 +14,8 @@ public class BattleManager : MonoBehaviour
     
     bool IsMyTurn(CharacterScript script)
     {
+        //return script.AP >= script.APCost;
+
         if(script.CompareTag("Player") == IsPlayerTurn)
         {
             return true;
@@ -102,7 +104,16 @@ public class BattleManager : MonoBehaviour
     }
     void TurnEnd()
     {
-
+        if (IsPlayerTurn)
+        {
+            _player.OnActionEnd();
+        }
+        else
+        {
+            foreach (var enemy in _enemyList)
+            {
+            }
+        }
     }
  
     public void EnemyTurn()
@@ -114,9 +125,10 @@ public class BattleManager : MonoBehaviour
             if(controller != null)
             {
                 controller.AITurn();
+                enemy.OnActionEnd();
             }
         }
-        TurnEnd();
+
         Input.ResetInputAxes();
         TurnChange();
     }
@@ -134,7 +146,24 @@ public class BattleManager : MonoBehaviour
             EnemyTurn();
         }
     }
-
+    void ProcessTick()
+    {
+        while(_player.AP < _player.APCost)
+        {
+            _player.AddActionPoint(100);
+            foreach(var enemy in _enemyList)
+            {
+                enemy.AddActionPoint(100);
+                if(enemy.AP >= enemy.APCost)
+                {
+                    var controller = enemy.gameObject.GetComponent<AIController>();
+                    controller.AITurn();
+                    enemy.OnActionEnd();
+                }
+            }
+        }
+        Input.ResetInputAxes();
+    }
     // 이하는 디버그 용으로 만들었던 SpawnEnemy 메서드. 나중에 Spawn전용 클래스를 만들거나 ObjectManager를 두면 좋을 듯.
     public void SpawnEnemy()
     {

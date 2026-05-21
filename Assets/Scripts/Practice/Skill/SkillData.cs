@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using JetBrains.Annotations;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -14,7 +15,8 @@ public enum EffectType
     SELFHEAL,
     KNOCKBACK,
     DASHSLASH,
-    WALLRUN
+    WALLRUN,
+    POISON
 }
 public enum SkillType
 {
@@ -104,7 +106,7 @@ public class DashSlashEffect : Effect
 {
     public DashSlashEffect(int[] values) : base(EffectType.DASHSLASH, values) { }
 
-    public void Alt_ApplyEffect(CharacterScript caster, Vector2Int target)
+    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
     {
         int moveDistance = _values[0];
         int damage = _values[1];
@@ -123,7 +125,7 @@ public class DashSlashEffect : Effect
                 checkPosition = checkPosition - direction;
                 break;
             }
-            if (MapManager.Inst.IsOccupied(checkPosition) == false)
+            if (MapManager.Inst.IsOccupied(checkPosition))
             {
                 CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(checkPosition);
                 passingEnemy.Add(enemy);
@@ -144,13 +146,15 @@ public class DashSlashEffect : Effect
         // 데미지 입히는 파트
         foreach (var enemy in passingEnemy)
         {
-            if (enemy != null)
+            if (enemy == null)
             {
-                enemy.TakeDamage(damage, caster);
+                Debug.LogWarning("Enemy Is NULL");
             }
+            enemy.TakeDamage(damage, caster);
+
         }
     }
-    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    public void ALT_ApplyEffect(CharacterScript caster, Vector2Int target)
     {
         int moveDistance = _values[0];
         int damage = _values[1];
@@ -211,6 +215,16 @@ public class DashSlashEffect : Effect
         }
     }
 }
+public class PoisonEffect : Effect
+{
+    public PoisonEffect(int values) : base(EffectType.POISON, values){ }
+    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    {
+        
+    }
+}
+
+// 현재 InstantKill이후의 로직 구현안되어있으므로 절대 사용금지!!
 public class WallRunEffect : Effect
 {
     public WallRunEffect(int[] values) : base(EffectType.WALLRUN, values) { }

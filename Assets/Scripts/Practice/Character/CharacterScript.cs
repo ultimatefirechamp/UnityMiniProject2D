@@ -11,9 +11,13 @@ public class CharacterScript : MonoBehaviour, IControllable
     private Skill testingSkill;
     public event Action<CharacterScript> OnKillEvent;
     Dictionary<string, Skill> _skillList;
+    
     public int MaxHp { get; private set; }
     public int Hp { get; private set; }
     public int AC { get; private set; }
+    public int AP { get; private set; } = 0;
+    public int APCost { get; private set; }
+    public int APCostDefault { get; private set; }
     public int ATK { get; private set; }
     public bool IsAlive { get; private set; }
     public Vector2Int GridPosition { get; private set; }
@@ -115,7 +119,10 @@ public class CharacterScript : MonoBehaviour, IControllable
     {
         OnKillEvent?.Invoke(victim);
     }
-
+    public void AddActionPoint(int value)
+    {
+        AP += value;
+    }
     public void SetGridPosition(Vector2Int position)
     {
         GridPosition = position;
@@ -137,6 +144,10 @@ public class CharacterScript : MonoBehaviour, IControllable
         {
             _statusList.Remove(status);
         }
+    }
+    public void OnActionEnd()
+    {
+        AP -= APCost;
     }
     private void OnDestroy()
     {
