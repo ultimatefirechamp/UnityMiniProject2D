@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 
 public class MapManager : MonoBehaviour
 {
@@ -85,6 +86,7 @@ public class MapManager : MonoBehaviour
         _occupied.Remove(prev);
         _characterPositions.Remove(prev);
         _characterPositions[current] = character;
+        character.SetGridPosition(current);
     }
     public void OccupyTile(Vector2Int current, CharacterScript character)
     {
@@ -154,6 +156,44 @@ public class MapManager : MonoBehaviour
         _occupied.Add(position);
         _characterPositions[position] = mover;
         mover.SetGridPosition(position);
+    }
+    public void Swap(Vector2Int first, Vector2Int second)
+    {
+        if ((IsWalkable(first) == false) || (IsWalkable(second) == false))
+        {
+            return;
+        }
+        if ((IsOccupied(first) == false) && (IsOccupied(second) == false))
+        {
+            return;
+        }
+        
+        CharacterScript firstCharacter = IsOccupied(first) ? _characterPositions[first] : null;
+        CharacterScript secondCharacter = IsOccupied(second) ? _characterPositions[second] : null;
+
+        if(firstCharacter != null)
+        {
+            _characterPositions[second] = firstCharacter;
+            _occupied.Add(second);
+            firstCharacter.SetGridPosition(second);
+        }
+        else
+        {
+            _characterPositions.Remove(second);
+            _occupied.Remove(second);
+        }
+
+        if (secondCharacter != null)
+        {
+            _characterPositions[first] = secondCharacter;
+            _occupied.Add(first);
+            secondCharacter.SetGridPosition(first);
+        }
+        else
+        {
+            _characterPositions.Remove(first);
+            _occupied.Remove(first);
+        }
     }
     private void OnDrawGizmos()
     {
