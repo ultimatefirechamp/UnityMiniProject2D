@@ -2,7 +2,7 @@
 public interface IControllable
 {
     void Move(Vector2Int direction);
-    void TakeDamage(int damage);
+    void TakeDamage(int damage, CharacterScript attacker);
     void Attack(Vector2Int target);
 }
 public class PlayerController : MonoBehaviour

@@ -9,6 +9,7 @@ public class CharacterScript : MonoBehaviour, IControllable
     public event Action<Transform> OnMove;
     public event Action<int,int> OnDamaged;
     private Skill testingSkill;
+    public event Action<CharacterScript> OnKillEvent;
     Dictionary<string, Skill> _skillList;
     public int MaxHp { get; private set; }
     public int Hp { get; private set; }
@@ -97,7 +98,7 @@ public class CharacterScript : MonoBehaviour, IControllable
         Hp = 0;
         IsAlive = false;
     }
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, CharacterScript attacker = null)
     {
         Hp -= damage;
         Debug.Log($"{gameObject.name} take {damage} damage");
@@ -105,8 +106,17 @@ public class CharacterScript : MonoBehaviour, IControllable
         if (Hp <= 0)
         {
             IsAlive = false;
+            if(attacker != null)
+            {
+                attacker.NotifyKill(this);
+            }
         }
     }
+    public void NotifyKill(CharacterScript victim)
+    {
+        OnKillEvent?.Invoke(victim);
+    }
+
     public void SetGridPosition(Vector2Int position)
     {
         GridPosition = position;
