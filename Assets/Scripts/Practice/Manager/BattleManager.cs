@@ -84,7 +84,6 @@ public class BattleManager : MonoBehaviour
             targetCharacter.TakeDamage(1, attacker);
         }
     }
-
     public void RequestSkill(CharacterScript caster, Vector2Int target, Skill skill)
     {
         // skill check and execute Skill
