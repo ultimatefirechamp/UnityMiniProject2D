@@ -89,6 +89,18 @@ public class Invincible : StatusEffect
     {
         Duration--;
     }
+    void InvalidAttack(AttackData attackData)
+    {
+        attackData.Damage = 0;
+    }
+    public override void OnApply()
+    {
+        _target.OnDamageStep += InvalidAttack;
+    }
+    public override void OnRemove()
+    {
+        _target.OnDamageStep -= InvalidAttack;
+    }
     public override int ModifyDamage(int originalDamage, CharacterScript attacker = null)
     {
         return 0;

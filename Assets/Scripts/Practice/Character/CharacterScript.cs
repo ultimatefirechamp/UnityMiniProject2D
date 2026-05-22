@@ -23,10 +23,12 @@ public class CharacterScript : MonoBehaviour, IControllable
     public event Action<int,int> OnDamaged;
     public event Action<int, int> OnSpChanged;
     public event Action<AttackData> OnBeforeDamage;
+    public event Action<AttackData> OnDamageStep;
+    public event Action<StatusEffect> OnAddEffect;
     private Skill testingSkill;
     public event Action<CharacterScript> OnKillEvent;
+    public event Action OnTickStart;
     Dictionary<string, Skill> _skillList;
-    Dictionary<string, StatusEffect> _statusList;
 
     public int MaxHp { get; private set; } = 10;
     public int Hp { get; private set; } = 10;
@@ -53,7 +55,6 @@ public class CharacterScript : MonoBehaviour, IControllable
         SkillRecord record = GameDataManager.Instance.GetSkillRecord("skill_flyingswallow");
         testingSkill = new Skill(record);
         _skillList["skill_flyingswallow"] = testingSkill;
-        _statusList = new Dictionary<string, StatusEffect>();
         //StatusEffect invincible = new Invincible(99, this);
         //_statusList.Add(invincible.Id, invincible);
     }
@@ -141,11 +142,9 @@ public class CharacterScript : MonoBehaviour, IControllable
             return;
         }
 
+        OnDamageStep?.Invoke(attackData);
+
         int modifiedDamage = attackData.Damage;
-        foreach(var status in _statusList.Values)
-        {
-            modifiedDamage = status.ModifyDamage(modifiedDamage, attacker);
-        }
         Hp -= modifiedDamage;
         Debug.Log($"{gameObject.name} take {modifiedDamage} damage");
         OnDamaged?.Invoke(MaxHp,Hp);
@@ -177,20 +176,7 @@ public class CharacterScript : MonoBehaviour, IControllable
     }
     public void OnWorldTick()
     {
-        List<string> removeList = new List<string>();
-        foreach(var status in _statusList.Values)
-        {
-            status.OnTurnTick();
-            if(status.Stack == 0 || status.Duration == 0)
-            {
-                removeList.Add(status.Id);
-            }
-        }
-        foreach(var removeKey in removeList)
-        {
-            _statusList[removeKey].OnRemove();
-            _statusList.Remove(removeKey);
-        }
+        OnTickStart?.Invoke();
     }
     public void OnActionEnd()
     {
@@ -198,10 +184,7 @@ public class CharacterScript : MonoBehaviour, IControllable
     }
     public void AddStatusEffect(StatusEffect effect)
     {
-        if(_statusList.ContainsKey(effect.Id))
-        {
-
-        }
+        OnAddEffect?.Invoke(effect);
     }
     private void OnDisable()
     {
