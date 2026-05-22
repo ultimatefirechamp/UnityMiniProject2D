@@ -82,6 +82,12 @@ public class PlayerController : MonoBehaviour
             y -= 1;
         }
 
+        if(Input.GetKeyDown(KeyCode.S))
+        {
+            // 마음에 안드는 매직 넘버... 일단 대기인지 입력이 없는건지 구분하기 위해 이렇게 함...
+            x = -2;
+            y = -2;
+        }
         Vector2Int moveDirection = new Vector2Int(x, y);
         
         if (moveDirection == Vector2.zero)
@@ -89,7 +95,13 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if(Input.GetKey(KeyCode.LeftShift))
+        if(moveDirection == new Vector2(-2,-2))
+        {
+            BattleManager.Inst.ProcessTick();
+            return;
+        }
+
+        if (Input.GetKey(KeyCode.LeftShift))
         {
             if(_character is CharacterScript player)
             {

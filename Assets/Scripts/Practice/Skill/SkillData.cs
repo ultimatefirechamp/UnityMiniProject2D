@@ -138,7 +138,6 @@ public class DashSlashEffectLogic : IEffectLogic
                 Debug.LogWarning("Enemy Is NULL");
             }
             enemy.TakeDamage(damage, caster);
-
         }
     }
 }
@@ -257,12 +256,10 @@ public class SkillRecord
                 Effects.Add(new EffectPayload { Type = effectType, Values = effectValues });  
             }
         }
-
     }
-
 }
 
-public class Skill
+public class Skill // <- 말만 스킬인데 역할만 보면 그.. handler느낌이 드빈다
 {
     public SkillRecord Record { get; private set; }
     public Skill(SkillRecord record)
@@ -272,7 +269,6 @@ public class Skill
     public string Name { get { return Record.Data.Name; } }
     public string Description { get { return Record.Data.Description; } }
     public int CastRange { get { return Record.Data.CastRange; } }
-
     public void Execute(CharacterScript caster, Vector2Int target)
     {
         foreach(var payload in Record.Effects)
@@ -299,132 +295,3 @@ public static class EffectProcessor
         }
     }
 }
-
-//public class Skill // 실질적으로 게임에 적용될 양식. 스킬이 객체적으로 생성될 때 SkillData -> Skill로 변환하면서 생성.
-//{
-//    public string Id { get; private set; }
-//    public string Name { get; private set; }
-//    public string Description { get; private set; }
-
-//    // 
-//    // 강사님 피드백 : 차라리 Data를 소유하고 있는 구조는 어떤가?
-//    // 스킬 레코드
-//    public int CostSP { get; private set; }
-//    public SkillType Type { get; private set; }
-//    public int CastRange { get; private set; }
-//    List<Effect> _effectList;
-//    public Skill(string id, string name, string desc, int costSp, SkillType type, int castRange, List<Effect> effectList)
-//    {
-//        Id = id;
-//        Name = name;
-//        Description = desc;
-//        CostSP = costSp;
-//        Type = type;
-//        CastRange = castRange;
-//        _effectList = effectList;
-//    }
-//    public Skill(string id, string name, string desc, int costSP)
-//    {
-//        Id = id;
-//        Name = name;
-//        Description = desc;
-//        CostSP = costSP;
-//    }
-//    public void SetSkillType(SkillType type)
-//    {
-//        Type = type;
-//    }
-//    public void SetCastRange(int range)
-//    {
-//        CastRange = range;
-//    }
-//    public void SetEffectList(List<Effect> effectList)
-//    {
-//        _effectList = effectList;
-//    }
-//    public void SetEffects(List<Effect> effectList)
-//    {
-//        _effectList = effectList;
-//    }
-//    public void Execute(CharacterScript caster, Vector2Int opponent)
-//    {
-//        foreach(var effect in _effectList)
-//        {
-//            effect.ApplyEffect(caster, opponent);
-//        }
-//    }
-//}
-
-//public static class SkillFactory
-//{
-//    public static Skill CreateSkill(SkillData data)
-//    {
-//        // 방해된다... 코드 멋대로 작성하지 말아줘 IDE야...
-//        // 안보이자나...
-
-//        // 스킬타입 파싱
-//        if(Enum.TryParse(data.Type, true, out SkillType parsedSkillData) == false)
-//        {
-//            parsedSkillData = SkillType.NONE;
-//        }
-//        // effect list 파싱
-//        // string데이터 양식은 DAMAGE:4 같은 EffectType:Value
-//        List<Effect> parsedEffect = new List<Effect>();
-
-//        foreach (var effectString  in data.EffectList)
-//        {
-//            string[] effectParam = effectString.Split(':');
-//            int[] effectValues = new int[effectParam.Length-1];
-//            if(effectParam.Length < 2)
-//            {
-//                continue;   
-//            }
-//            for (int i = 1; i < effectParam.Length; i++)
-//            {
-//                if (int.TryParse(effectParam[i].Trim(), out int value) == false)
-//                {
-//                    continue;
-//                }
-//                effectValues[i-1] = value;
-//            }
-//            string effectName = effectParam[0].Trim();
-//            //if(int.TryParse(effectParam[1].Trim(), out int effectValue) == false)
-//            //{
-//            //    continue;
-//            //}
-//            Effect effect = SkillFactory.CreateEffect(effectName, effectValues);
-//            if(effect == null)
-//            {
-//                continue;
-//            }
-//            parsedEffect.Add(effect);
-//        }
-
-//        if(parsedEffect.Count == 0)
-//        {
-//            return null;
-//        }
-//        return new Skill(data.Id, data.Name,data.Description,data.CostSP, parsedSkillData, data.CastRange, parsedEffect);
-//    }
-//    public static Effect CreateEffect(string typeString, int[] value)
-//    {
-//        if(Enum.TryParse(typeString, true, out EffectType type) == false)
-//        {
-//            return null;
-//        }
-//        switch(type)
-//        {
-//            case EffectType.DAMAGE:
-//                return new DamageEffect(value[0]);
-//            case EffectType.HEAL:
-//                return new HealEffect(value[0]);
-//            case EffectType.SELFHEAL:
-//                return new SelfHealEffect(value[0]);
-//            case EffectType.KNOCKBACK:
-//                return new KnockBackEffect(value[0]);
-//            case EffectType.DASHSLASH:
-//                return new DashSlashEffect(value);
-//        }
-//        return null;
-//    }
-//}

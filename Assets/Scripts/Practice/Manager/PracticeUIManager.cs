@@ -1,6 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+public enum UILayerType
+{
+    Background,
+    HUD,
+    PopUp,
+    Front
+}
+
 public class PracticeUIManager : MonoBehaviour
 {
     [SerializeField] GameObject UIRoot;
@@ -22,6 +30,10 @@ public class PracticeUIManager : MonoBehaviour
             case UIType.SimplePopup:
                 path = "Prefabs/Practice_KCK/UI/MyPopup";
                 break;
+            case UIType.HUD:
+                path = "Prefabs/Practice_KCK/UI/HUD_Layout";
+                break;
+
         }
         return path;
     }

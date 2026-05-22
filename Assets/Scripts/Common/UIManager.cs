@@ -6,6 +6,7 @@ public enum UIType
 {
     SimplePopup,
     MainUI,
+    HUD,
     HPBarGroup
 }
 

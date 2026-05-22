@@ -1,16 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public class AttackData
+{
+    public CharacterScript Attacker;
+    public int Damage;
+    public bool IsEvaded;
+    public AttackData(CharacterScript attacker, int damage)
+    {
+        Attacker = attacker;
+        Damage = damage;
+        IsEvaded = false;
+    }
+}
 public class CharacterScript : MonoBehaviour, IControllable
 {
     public event Action<Transform> OnMove;
     public event Action<int,int> OnDamaged;
+    public event Action<int, int> OnSpChanged;
+    public event Action<AttackData> OnBeforeDamage;
     private Skill testingSkill;
     public event Action<CharacterScript> OnKillEvent;
     Dictionary<string, Skill> _skillList;
+    Dictionary<string, StatusEffect> _statusList;
 
     public int MaxHp { get; private set; } = 10;
     public int Hp { get; private set; } = 10;
@@ -18,18 +34,15 @@ public class CharacterScript : MonoBehaviour, IControllable
     public int AP { get; private set; } = 0;
     public int APCost { get; private set; } = 100;
     public int APCostDefault { get; private set; } = 100;
+    public int SP { get; private set; } = 10;
+    public int MaxSP { get; private set; } = 10;
     public int ATK { get; private set; } = 1;
     public bool IsAlive { get; private set; } = true;
     public Vector2Int GridPosition { get; private set; }
-    Dictionary<string, StatusEffect> _statusList;
     public int AttackRange { get; private set; } = 1;
     public string Name { get; private set; } = "popoi";
     private void Awake()
     {
-        MaxHp = 10;
-        Hp = 10;
-        IsAlive = true;
-        AttackRange = 1;
         _skillList = new Dictionary<string, Skill>();
     }
     private void Start()
@@ -41,7 +54,8 @@ public class CharacterScript : MonoBehaviour, IControllable
         testingSkill = new Skill(record);
         _skillList["skill_flyingswallow"] = testingSkill;
         _statusList = new Dictionary<string, StatusEffect>();
-
+        //StatusEffect invincible = new Invincible(99, this);
+        //_statusList.Add(invincible.Id, invincible);
     }
     void Init()
     {
@@ -58,6 +72,7 @@ public class CharacterScript : MonoBehaviour, IControllable
         AttackRange = data.Range;
         ATK = data.ATK;
         AC = data.AC;
+        OnDamaged?.Invoke(MaxHp,Hp);
     }
     public void Skill(Vector2Int target)
     {
@@ -78,9 +93,18 @@ public class CharacterScript : MonoBehaviour, IControllable
         // Request to Manager
         Vector2Int prevPos = GridPosition;
         Vector2Int destPos = GridPosition + direction;
-        if (MapManager.Inst.IsOccupied(destPos) || MapManager.Inst.IsWalkable(destPos) == false)
+        if (MapManager.Inst.IsWalkable(destPos) == false)
         {
             return;
+        }
+        if(MapManager.Inst.IsOccupied(destPos))
+        {
+            CharacterScript target = MapManager.Inst.GetCharacterAtPosition(destPos);
+            if(target == this)
+            {
+                return;
+            }
+            Attack(destPos);
         }
         MapManager.Inst.MoveTo(prevPos, destPos, this);
     }
@@ -97,15 +121,33 @@ public class CharacterScript : MonoBehaviour, IControllable
         }
         OnDamaged?.Invoke(MaxHp, Hp);
     }
-    public void InstantKill()
+    public void InstantKill(CharacterScript attacker = null)
     {
         Hp = 0;
         IsAlive = false;
+        if (attacker != null)
+        {
+            attacker.NotifyKill(this);
+        }
     }
     public void TakeDamage(int damage, CharacterScript attacker = null)
     {
-        Hp -= damage;
-        Debug.Log($"{gameObject.name} take {damage} damage");
+        AttackData attackData = new AttackData(attacker, damage);
+
+        OnBeforeDamage?.Invoke(attackData);
+
+        if(attackData.IsEvaded)
+        {
+            return;
+        }
+
+        int modifiedDamage = attackData.Damage;
+        foreach(var status in _statusList.Values)
+        {
+            modifiedDamage = status.ModifyDamage(modifiedDamage, attacker);
+        }
+        Hp -= modifiedDamage;
+        Debug.Log($"{gameObject.name} take {modifiedDamage} damage");
         OnDamaged?.Invoke(MaxHp,Hp);
         if (Hp <= 0)
         {
@@ -132,23 +174,34 @@ public class CharacterScript : MonoBehaviour, IControllable
     }
     public void OnTurnStart()
     {
+    }
+    public void OnWorldTick()
+    {
         List<string> removeList = new List<string>();
         foreach(var status in _statusList.Values)
         {
             status.OnTurnTick();
             if(status.Stack == 0 || status.Duration == 0)
             {
-                removeList.Add(status.Name);
+                removeList.Add(status.Id);
             }
         }
-        foreach(var status in removeList)
+        foreach(var removeKey in removeList)
         {
-            _statusList.Remove(status);
+            _statusList[removeKey].OnRemove();
+            _statusList.Remove(removeKey);
         }
     }
     public void OnActionEnd()
     {
         AP -= APCost;
+    }
+    public void AddStatusEffect(StatusEffect effect)
+    {
+        if(_statusList.ContainsKey(effect.Id))
+        {
+
+        }
     }
     private void OnDisable()
     {
