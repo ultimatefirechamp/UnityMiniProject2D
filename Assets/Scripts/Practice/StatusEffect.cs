@@ -17,6 +17,7 @@ public abstract class StatusEffect
         Duration = duration;
         MaxStack = maxStack;
         _target = target;
+        Stack = 1;
     }
     public virtual void OnApply() { }
     public virtual void AddStack(int duration)

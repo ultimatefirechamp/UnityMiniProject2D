@@ -8,6 +8,14 @@ public enum UILayerType
     PopUp,
     Front
 }
+public enum UIType
+{
+    SimplePopup,
+    MainUI,
+    HUD,
+    HPBarGroup,
+    StatusEffectLayer
+}
 
 public class PracticeUIManager : MonoBehaviour
 {
@@ -33,7 +41,9 @@ public class PracticeUIManager : MonoBehaviour
             case UIType.HUD:
                 path = "Prefabs/Practice_KCK/UI/HUD_Layout";
                 break;
-
+            case UIType.StatusEffectLayer:
+                path = "Prefabs/Practice_KCK/UI/StatusEffectPanel";
+                break;
         }
         return path;
     }

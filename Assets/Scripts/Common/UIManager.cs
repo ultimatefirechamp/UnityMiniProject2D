@@ -2,14 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum UIType
-{
-    SimplePopup,
-    MainUI,
-    HUD,
-    HPBarGroup
-}
-
 public class UIManager : MonoBehaviour
 {
     [SerializeField] GameObject UIRoot;
