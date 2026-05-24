@@ -8,15 +8,12 @@ public class TestSpawnButtons : MonoBehaviour
     [SerializeField] private Button OpenPopUpBtn;
     [SerializeField] private InputField IDInputField;
 
-    private void Start()
-    {
-        
-    }
     private void OnEnable()
     {
         SpawnBtn.onClick.AddListener(new UnityEngine.Events.UnityAction(SpawnEnemy));
         OpenPopUpBtn.onClick.AddListener(new UnityEngine.Events.UnityAction(OpenPopUp));
-        IDInputField.onSubmit.AddListener(new UnityEngine.Events.UnityAction<string>(SpawnEnemyFromID));
+        //IDInputField.onSubmit.AddListener(new UnityEngine.Events.UnityAction<string>(SpawnEnemyFromID));
+        IDInputField.onSubmit.AddListener(new UnityEngine.Events.UnityAction<string>(SpawnCodeCommand));
     }
     private void OnDisable()
     {
@@ -31,6 +28,17 @@ public class TestSpawnButtons : MonoBehaviour
     public void SpawnEnemy()
     {
         BattleManager.Inst.SpawnEnemy();
+    }
+    public void SpawnCodeCommand(string command)
+    {
+        if(command == "Spawn StatusEffect")
+        {
+            SpawnStatusGroupPanel();
+        }
+    }
+    public void SpawnStatusGroupPanel()
+    { 
+        BattleManager.Inst._player.AddStatusEffect(new Poison(3, BattleManager.Inst._player));
     }
     public void SpawnEnemyFromID(string id)
     {
