@@ -19,15 +19,28 @@ public class AttackData
 }
 public class CharacterScript : MonoBehaviour, IControllable
 {
+    // 캐릭터 행위에 관한 이벤트
     public event Action<Transform> OnMove;
-    public event Action<int,int> OnDamaged;
-    public event Action<int, int> OnSpChanged;
+    public event Action OnAttack; // 일단 만들기만 해둠. 후에 필요한 일이 생기면 매개변수와 함께 쓸 예정.
+    public event Action<CharacterScript> OnKillEvent;
+    public event Action OnSkill; // 일단 만들기만 해둠. 후에 필요한 일이 생기면 매개변수와 함께 쓸 예정.
+
+    // 데미지와 관련한 이벤트
     public event Action<AttackData> OnBeforeDamage;
     public event Action<AttackData> OnDamageStep;
-    public event Action<StatusEffect> OnAddEffect;
-    private Skill testingSkill;
-    public event Action<CharacterScript> OnKillEvent;
+    public event Action<int, int> OnDamaged;
+
+    // 턴 주기와 관련한 이벤트
     public event Action OnTickStart;
+
+    // 상태이상 관련 이벤트
+    public event Action<StatusEffect> OnAddEffect;
+
+    // 미분류 이벤트
+    public event Action OnCharacterDistroy;
+    public event Action<int, int> OnSpChanged;
+
+    private Skill testingSkill;
     Dictionary<string, Skill> _skillList;
 
     public int MaxHp { get; private set; } = 10;
@@ -63,7 +76,6 @@ public class CharacterScript : MonoBehaviour, IControllable
         HPBarGroupScript hpbarGroup = PracticeUIManager.Inst.GetCreatedUI(UIType.HPBarGroup).GetComponent<HPBarGroupScript>();
         // register this character to Ui
         hpbarGroup.RegisterCharacter(this);
-
     }
     public void SetCharacter(MonsterData data)
     {
@@ -77,6 +89,7 @@ public class CharacterScript : MonoBehaviour, IControllable
     }
     public void Skill(Vector2Int target)
     {
+        OnSkill?.Invoke();
         BattleManager.Inst.RequestSkill(this, target, testingSkill);
         //testingSkill.Execute(this, target);
     }
@@ -111,6 +124,7 @@ public class CharacterScript : MonoBehaviour, IControllable
     }
     public void Attack(Vector2Int target)
     {
+        OnAttack?.Invoke();
         BattleManager.Inst.RequestAttack(this, target);
     }
     public void Heal(int healAmount)
@@ -194,5 +208,6 @@ public class CharacterScript : MonoBehaviour, IControllable
     }
     private void OnDestroy()
     {
+        OnCharacterDistroy?.Invoke();
     }
 }

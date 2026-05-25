@@ -24,6 +24,8 @@ public class PlayerSet : MonoBehaviour
             hud.RegistPlayer(_player);
         }
         _player.SetCharacter(playerData);
+        StatusEffect effect = new Invincible(99, _player);
+        _player.AddStatusEffect(effect);
     }
     private void OnEnable()
     {

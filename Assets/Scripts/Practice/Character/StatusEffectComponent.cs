@@ -21,6 +21,7 @@ public class StatusEffectComponent : MonoBehaviour
     {
         _owner.OnAddEffect += AddStatusEffect;
         _owner.OnTickStart += ProcessTurnTick;
+        _owner.OnCharacterDistroy += this.OnCharacterDestroy;
     }
     private void Start()
     {
@@ -82,11 +83,20 @@ public class StatusEffectComponent : MonoBehaviour
         {
             _owner.OnAddEffect -= AddStatusEffect;
             _owner.OnTickStart -= ProcessTurnTick;
+            _owner.OnCharacterDistroy -= this.OnCharacterDestroy;
         }
     }
-    private void OnDestroy()
+    void OnCharacterDestroy()
+    {
+        RemoveStatus();
+    }
+    void RemoveStatus()
     {
         GameObject effectUI = PracticeUIManager.Inst.GetCreatedUI(UIType.StatusEffectLayer);
         effectUI.GetComponent<StatusEffectPanel>().UnRegistCharacter(_owner);
+    }
+    private void OnDestroy()
+    {
+        RemoveStatus();
     }
 }

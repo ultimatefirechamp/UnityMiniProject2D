@@ -21,6 +21,7 @@ public class AIController : MonoBehaviour
     {
         FindControllableComponent();
         BattleManager.Inst.RegistEnemy(_controllerable as CharacterScript);
+        this.playerTransform = BattleManager.Inst._player.transform;
     }
 
     public void AITurn()
