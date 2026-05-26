@@ -65,6 +65,10 @@ public class BombShuriken : StatusEffect
     {
         _damage = damage;
     }
+    public override void AddStack(int duration)
+    {
+        Stack++;
+    }
     public override void OnTurnTick()
     {
         Duration--;
