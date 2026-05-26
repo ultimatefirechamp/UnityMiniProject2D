@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class AttackData
 {
@@ -42,6 +43,7 @@ public class CharacterScript : MonoBehaviour, IControllable
 
     private SkillRecord testingSkill;
     Dictionary<string, SkillRecord> _skillList;
+    SkillComponent _skillComp;
 
     public int MaxHp { get; private set; } = 10;
     public int Hp { get; private set; } = 10;
@@ -54,11 +56,12 @@ public class CharacterScript : MonoBehaviour, IControllable
     public int ATK { get; private set; } = 1;
     public bool IsAlive { get; private set; } = true;
     public Vector2Int GridPosition { get; private set; }
-    public int AttackRange { get; private set; } = 1;
+    public int AttackRange { get; private set; } = 3;
     public string Name { get; private set; } = "popoi";
     private void Awake()
     {
         _skillList = new Dictionary<string, SkillRecord>();
+        _skillComp = gameObject.GetComponent<SkillComponent>();
     }
     private void Start()
     {
@@ -102,6 +105,15 @@ public class CharacterScript : MonoBehaviour, IControllable
         }
         Debug.LogWarning($"This Character don't have {skillName} {gameObject.name}");
     }
+    public void UseSkill(SkillComboType comboType, Vector2Int moveDirection)
+    {
+        if(_skillComp == null)
+        {
+            return;
+        }
+        Vector2Int target = moveDirection + GridPosition;
+        _skillComp.UseSkill(comboType, target);
+    }
     public void Move(Vector2Int direction)
     {
         // Request to Manager
@@ -109,6 +121,7 @@ public class CharacterScript : MonoBehaviour, IControllable
         Vector2Int destPos = GridPosition + direction;
         if (MapManager.Inst.IsWalkable(destPos) == false)
         {
+            _skillComp.UseSkill("skill_walljump", destPos);
             return;
         }
         if(MapManager.Inst.IsOccupied(destPos))
@@ -200,6 +213,16 @@ public class CharacterScript : MonoBehaviour, IControllable
     {
         OnAddEffect?.Invoke(effect);
     }
+    public void CommandSkill(SkillComboType comboType, Vector2Int direction)
+    {
+        if(_skillComp == null)
+        {
+            Debug.LogWarning("{gameObject.name} doesn't have SkillComponent");
+            return;
+        }
+        _skillComp.UseSkill(comboType, direction + GridPosition);
+    }
+
     private void OnDisable()
     {
         if(PracticeUIManager.Inst != null)

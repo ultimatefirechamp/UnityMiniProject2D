@@ -19,10 +19,16 @@ public class SkillComponent : MonoBehaviour
         _skillList = new Dictionary<string, SkillRecord>();
         _skillMaping = new Dictionary<SkillComboType, string>();
     }
+    
+    private void Start()
+    {
+        AddSkill("skill_flyingswallow",SkillComboType.SHIFT);
+        AddSkill("skill_walljump");
+    }
 
     public void UseSkill(string skillId, Vector2Int target)
     {
-        if (_skillList.TryGetValue(skillId, out var skill) == false)
+        if (_skillList.TryGetValue(skillId, out var skill) == false || _isSet == false)
         {
             return;
         }
@@ -45,5 +51,17 @@ public class SkillComponent : MonoBehaviour
             UseSkill(skillId, target);
         }
     }
-
+    public void AddSkill(string skillId, SkillComboType comboType = SkillComboType.NONE)
+    {
+        if(_isSet == false)
+        {
+            return;
+        }
+        _skillList.Add(skillId, GameDataManager.Instance.GetSkillRecord(skillId));
+        if(comboType == SkillComboType.NONE)
+        {
+            return;
+        }
+        _skillMaping.Add(comboType, skillId);
+    }
 }
