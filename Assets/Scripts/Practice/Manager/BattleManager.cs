@@ -56,6 +56,7 @@ public class BattleManager : MonoBehaviour
         }
         // 스킬도 확인 용으로 임시로 받은 데이터.
         Debug.Log((GameDataManager.Instance.GetSkill("skill_smash")).Name);
+
     }
     
     public static BattleManager Inst { get { return _instance; } }

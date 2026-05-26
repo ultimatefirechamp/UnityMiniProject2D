@@ -3,12 +3,6 @@ using UnityEngine;
 using UnityEngine.TextCore.Text;
 using UnityEngine.Timeline;
 
-public enum SkillComboType
-{
-    SHIFT,
-    CTRL
-}
-
 public class AIController : MonoBehaviour
 {
     IControllable _controllerable;
@@ -57,7 +51,9 @@ public class AIController : MonoBehaviour
         int distance = deltaX > deltaY ? deltaX : deltaY;
         if(distance <= bot.AttackRange)
         {
-            _controllerable.Attack(playerPos);
+            //_controllerable.Attack(playerPos);
+            CharacterScript player = MapManager.Inst.GetCharacterAtPosition(playerPos);
+            player.AddStatusEffect(new BombShuriken(3, 2, player));
             return;
         }
         // 플레이어를 향해 이동.
@@ -76,7 +72,6 @@ public class AIController : MonoBehaviour
         {
             return;
         }
-        Debug.LogWarning($"First path : {path[0]}");
         Vector2Int direction = path[0] - myPos;
         Vector2Int destPos = path[0];
 
