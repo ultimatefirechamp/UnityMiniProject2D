@@ -25,7 +25,7 @@ public class StatusEffectPanel : MonoBehaviour
             return;
         }
         _effectslots[character].UnRegistCharacter(character);
-        Destroy(_effectslots[character]);
+        Destroy(_effectslots[character].gameObject);
         _effectslots.Remove(character);
     }    
 }
