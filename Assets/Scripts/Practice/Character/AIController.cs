@@ -3,6 +3,12 @@ using UnityEngine;
 using UnityEngine.TextCore.Text;
 using UnityEngine.Timeline;
 
+public enum SkillComboType
+{
+    SHIFT,
+    CTRL
+}
+
 public class AIController : MonoBehaviour
 {
     IControllable _controllerable;
