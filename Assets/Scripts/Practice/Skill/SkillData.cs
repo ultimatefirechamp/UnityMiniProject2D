@@ -21,7 +21,12 @@ public enum EffectType
     POISONOUS
 }
 
-
+public enum SkillComboType
+{
+    NONE,
+    SHIFT,
+    CTRL
+}
 
 public enum SkillType
 {
@@ -52,6 +57,19 @@ public abstract class Effect
     public abstract void ApplyEffect(CharacterScript caster, Vector2Int target);
 }
 
+
+public class DamageEffectLogic : IEffectLogic
+{
+    public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
+    {
+        int damage = payload.Values[0];
+        var targetCharacter = MapManager.Inst.GetCharacterAtPosition(target);
+        if (targetCharacter != null)
+        {
+            targetCharacter.TakeDamage(damage, caster);
+        }
+    }
+}
 public class HealEffectLogic : IEffectLogic
 {
     public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
@@ -162,7 +180,8 @@ public class WallJumpEffectLogic : IEffectLogic
     public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
     {
         int moveDistance = payload.Values[0];
-        int damage = payload.Values[1];
+        //int damage = payload.Values[1];
+        int damage = 4;
 
         Vector2Int oppositeDirection = caster.GridPosition - target;
         // 입력한 방향과 역방향으로 distance만큼으로 이동
@@ -193,6 +212,7 @@ public class WallJumpEffectLogic : IEffectLogic
             CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position);
             enemy.InstantKill(caster);
         }
+        caster.AddStatusEffect(new Invincible(1, caster));
         MapManager.Inst.Swap(caster.GridPosition, position);
         foreach (var direction in MyUtil.Directions)
         {
@@ -226,18 +246,6 @@ public interface IEffectLogic
     void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target);
 }
 
-public class DamageEffectLogic : IEffectLogic
-{
-    public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
-    {
-        int damage = payload.Values[0];
-        var targetCharacter = MapManager.Inst.GetCharacterAtPosition(target);
-        if (targetCharacter != null)
-        {
-            targetCharacter.TakeDamage(damage, caster);
-        }
-    }
-}
 
 public class SkillRecord
 {
