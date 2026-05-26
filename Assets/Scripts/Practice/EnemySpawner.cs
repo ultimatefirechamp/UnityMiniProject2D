@@ -16,6 +16,16 @@ public class EnemySpawner : MonoBehaviour
         CharacterScript createdEnemy = createdEnemyObj.GetComponent<CharacterScript>();
         createdEnemy.SetGridPosition(gridPosition);
         MapManager.Inst.OccupyTile(gridPosition, createdEnemy);
+        createdEnemy.SetCharacter(GameDataManager.Instance.GetMonsterData("mob_bomber"));
+    }
+
+    public void Start()
+    {
+        SpawnEnemy(new Vector2Int(5,3));
+    }
+    public void Spawn()
+    {
+
     }
 
 }
