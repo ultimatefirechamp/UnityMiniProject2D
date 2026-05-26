@@ -18,7 +18,7 @@ public enum EffectType
     KNOCKBACK,
     DASHSLASH,
     WALLJUMP,
-    POISON
+    POISONOUS
 }
 
 
@@ -145,12 +145,16 @@ public class DashSlashEffectLogic : IEffectLogic
         }
     }
 }
-public class PoisonEffect : Effect
+public class PoisonousEffectLogic : IEffectLogic
 {
-    public PoisonEffect(int values) : base(EffectType.POISON, values){ }
-    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
     {
-        
+        int stack = payload.Values[0];
+        int duration = payload.Values[1];
+        CharacterScript targetCharacter = MapManager.Inst.GetCharacterAtPosition(target);
+        if(targetCharacter == null) { return; }
+        StatusEffect effect = new Poison(duration, targetCharacter);
+        targetCharacter.AddStatusEffect(effect);
     }
 }
 public class WallJumpEffectLogic : IEffectLogic
@@ -163,7 +167,7 @@ public class WallJumpEffectLogic : IEffectLogic
         Vector2Int oppositeDirection = caster.GridPosition - target;
         // 입력한 방향과 역방향으로 distance만큼으로 이동
         // 벽을 만나면 멈춤 
-        // 이동한 칸에 있던 적은 즉사
+        // 이동한 칸에 있던 적은 즉사... 에서 기획 수정? 그냥 위치 바꾸기..? 
         // 이동한 칸과 인접한 모든 적에게 데미지
         // 
         Vector2Int position = caster.GridPosition;
@@ -176,12 +180,20 @@ public class WallJumpEffectLogic : IEffectLogic
                 break;
             }
         }
-        if (MapManager.Inst.IsOccupied(position) && position == caster.GridPosition)
+        if (MapManager.Inst.IsOccupied(position) && position == caster.GridPosition) // 목표한 곳이 내가 있는 곳이라면. 즉 제자리.
+        {
+            return; // 효과 없음. 아마 이 조건을 만족하려면. 양 옆으로 꽉 막힌 곳에서 쓰면 이렇게 되지 않을까.
+            //CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position);
+            //enemy.InstantKill(caster);
+        }
+
+        if(MapManager.Inst.IsOccupied(position) && position != caster.GridPosition) // 왜 비슷한 조건문 검사를 여러번 하나요?
+            // 사실 위에 조건문을 처음에 적었는데 잘못 적은거라서...
         {
             CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position);
-            enemy.InstantKill();
+            enemy.InstantKill(caster);
         }
-        MapManager.Inst.ForceMove(caster, position);
+        MapManager.Inst.Swap(caster.GridPosition, position);
         foreach (var direction in MyUtil.Directions)
         {
             CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position + direction);
@@ -193,7 +205,6 @@ public class WallJumpEffectLogic : IEffectLogic
     }
 }
 
-// 현재 InstantKill이후의 로직 구현안되어있으므로 절대 사용금지!!
 
 [System.Serializable]
 public class SkillData : GameDataBase // 데이터 드리븐을 통해 받을 스킬의 데이터 양식
@@ -268,7 +279,8 @@ public class SkillRecord
     }
 }
 
-public class Skill // <- 말만 스킬인데 역할만 보면 그.. handler느낌이 드빈다, 그냥 레코드가 실행해도 상관없지 않나..?
+public class Skill // <- 말만 스킬인데 역할만 보면 그.. handler느낌이 드빈다, 그냥 레코드가 실행해도 상관없지 않나..? 
+    // 그래서 이제 안씀... SkillRecord가 역할 대체함.
 {
     public SkillRecord Record { get; private set; }
     public Skill(SkillRecord record)
@@ -295,7 +307,8 @@ public static class EffectProcessor
         { EffectType.HEAL, new HealEffectLogic() },
         { EffectType.SELFHEAL, new SelfHealEffectLogic() },
         { EffectType.DASHSLASH, new DashSlashEffectLogic() },
-        { EffectType.WALLJUMP, new WallJumpEffectLogic() }
+        { EffectType.WALLJUMP, new WallJumpEffectLogic() },
+        { EffectType.POISONOUS, new PoisonousEffectLogic() }
     };
     public static void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
     {
