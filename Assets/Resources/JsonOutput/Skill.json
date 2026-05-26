@@ -21,5 +21,16 @@
     "EffectList": [
       "DASHSLASH:3:5"
     ]
+  },
+  {
+    "Id": "skill_walljump",
+    "Name": "벽점프",
+    "Description": "벽을 박차고 반대 방향으로 도약한다",
+    "CostSP": 0,
+    "Type": "Active",
+    "CastRange": 1,
+    "EffectList": [
+      "WALLJUMP:1"
+    ]
   }
 ]
