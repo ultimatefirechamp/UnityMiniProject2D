@@ -5,6 +5,8 @@ public interface IControllable
     void TakeDamage(int damage, CharacterScript attacker);
     void Attack(Vector2Int target);
 }
+
+
 public class PlayerController : MonoBehaviour
 {
     private IControllable _character;
@@ -39,6 +41,8 @@ public class PlayerController : MonoBehaviour
         }
         int x = 0;
         int y = 0;
+        SkillComboType comboKey = SkillComboType.NONE;
+
         if (Input.GetKeyDown(KeyCode.W))
         {
             y += 1;
@@ -100,17 +104,32 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            if(_character is CharacterScript player)
-            {
-                player.UseSkill("skill_flyingswallow", moveDirection + player.GridPosition);
-            }
+            comboKey = SkillComboType.SHIFT;
+            //if(_character is CharacterScript player)
+            //{
+            //    //player.UseSkill("skill_flyingswallow", moveDirection + player.GridPosition);
+            //    player.UseSkill(SkillComboType.SHIFT, moveDirection);
+            //}
+        }
+
+        if(Input.GetKey(KeyCode.LeftControl))
+        {
+            comboKey = SkillComboType.CTRL;
+        }
+
+        if(comboKey == SkillComboType.NONE)
+        {
+            _character.Move(moveDirection);
         }
         else
         {
-
-            _character.Move(moveDirection);
+            if(_character is CharacterScript player)
+            {
+                player.UseSkill(comboKey, moveDirection);
+            }
         }
 
         BattleManager.Inst.ProcessTick();
