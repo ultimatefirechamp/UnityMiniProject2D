@@ -21,7 +21,7 @@ public class StatusEffectComponent : MonoBehaviour
     {
         _owner.OnAddEffect += AddStatusEffect;
         _owner.OnTickStart += ProcessTurnTick;
-        _owner.OnCharacterDistroy += this.OnCharacterDestroy;
+        _owner.OnCharacterDestroy += this.OnCharacterDestroy;
     }
     private void Start()
     {
@@ -83,7 +83,7 @@ public class StatusEffectComponent : MonoBehaviour
         {
             _owner.OnAddEffect -= AddStatusEffect;
             _owner.OnTickStart -= ProcessTurnTick;
-            _owner.OnCharacterDistroy -= this.OnCharacterDestroy;
+            _owner.OnCharacterDestroy -= this.OnCharacterDestroy;
         }
     }
     void OnCharacterDestroy()

@@ -81,10 +81,10 @@ public class BattleManager : MonoBehaviour
             // 추후에 방어력이나 데미지 계산 요소도 넣어야 할텐데...
             // TakeDamage는 순수 공격수치만 넣고
             // 데미지 받는 쪽 내부에서 자신의 AC수치랑 함께 계산해서 하는걸로 해야하나.
-            targetCharacter.TakeDamage(1, attacker);
+            targetCharacter.TakeDamage(attacker.ATK, attacker);
         }
     }
-    public void RequestSkill(CharacterScript caster, Vector2Int target, Skill skill)
+    public void RequestSkill(CharacterScript caster, Vector2Int target, SkillRecord skill)
     {
         // skill check and execute Skill
         if(IsMyTurn(caster) == false)

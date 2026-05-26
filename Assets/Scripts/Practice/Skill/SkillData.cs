@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 using static UnityEngine.Rendering.DebugUI;
 
 public enum EffectType
@@ -16,9 +17,12 @@ public enum EffectType
     SELFHEAL,
     KNOCKBACK,
     DASHSLASH,
-    WALLRUN,
+    WALLJUMP,
     POISON
 }
+
+
+
 public enum SkillType
 {
     NONE,
@@ -149,15 +153,12 @@ public class PoisonEffect : Effect
         
     }
 }
-
-// 현재 InstantKill이후의 로직 구현안되어있으므로 절대 사용금지!!
-public class WallRunEffect : Effect
+public class WallJumpEffectLogic : IEffectLogic
 {
-    public WallRunEffect(int[] values) : base(EffectType.WALLRUN, values) { }
-    public override void ApplyEffect(CharacterScript caster, Vector2Int target)
+    public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
     {
-        int moveDistance = _values[0];
-        int damage = _values[1];
+        int moveDistance = payload.Values[0];
+        int damage = payload.Values[1];
 
         Vector2Int oppositeDirection = caster.GridPosition - target;
         // 입력한 방향과 역방향으로 distance만큼으로 이동
@@ -166,22 +167,22 @@ public class WallRunEffect : Effect
         // 이동한 칸과 인접한 모든 적에게 데미지
         // 
         Vector2Int position = caster.GridPosition;
-        for (int i = 0; i < moveDistance; i++) 
+        for (int i = 0; i < moveDistance; i++)
         {
             position = position + oppositeDirection;
-            if(MapManager.Inst.IsWalkable(position) == false)
+            if (MapManager.Inst.IsWalkable(position) == false)
             {
                 position = position - oppositeDirection;
                 break;
             }
         }
-        if(MapManager.Inst.IsOccupied(position) && position == caster.GridPosition)
+        if (MapManager.Inst.IsOccupied(position) && position == caster.GridPosition)
         {
             CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position);
             enemy.InstantKill();
         }
         MapManager.Inst.ForceMove(caster, position);
-        foreach(var direction in MyUtil.Directions)
+        foreach (var direction in MyUtil.Directions)
         {
             CharacterScript enemy = MapManager.Inst.GetCharacterAtPosition(position + direction);
             if (enemy != null)
@@ -191,6 +192,8 @@ public class WallRunEffect : Effect
         }
     }
 }
+
+// 현재 InstantKill이후의 로직 구현안되어있으므로 절대 사용금지!!
 
 [System.Serializable]
 public class SkillData : GameDataBase // 데이터 드리븐을 통해 받을 스킬의 데이터 양식
@@ -230,7 +233,6 @@ public class SkillRecord
     public SkillData Data { get; private set; }
     public SkillType Type { get; private set; }
     public List<EffectPayload> Effects { get; private set; }
-
     public SkillRecord(SkillData data)
     {
         Data = data;
@@ -257,9 +259,16 @@ public class SkillRecord
             }
         }
     }
+    public void Execute(CharacterScript caster, Vector2Int target)
+    {
+        foreach (var payload in Effects)
+        {
+            EffectProcessor.ApplyEffect(payload, caster, target);
+        }
+    }
 }
 
-public class Skill // <- 말만 스킬인데 역할만 보면 그.. handler느낌이 드빈다
+public class Skill // <- 말만 스킬인데 역할만 보면 그.. handler느낌이 드빈다, 그냥 레코드가 실행해도 상관없지 않나..?
 {
     public SkillRecord Record { get; private set; }
     public Skill(SkillRecord record)
@@ -285,7 +294,8 @@ public static class EffectProcessor
         { EffectType.DAMAGE, new DamageEffectLogic() },
         { EffectType.HEAL, new HealEffectLogic() },
         { EffectType.SELFHEAL, new SelfHealEffectLogic() },
-        { EffectType.DASHSLASH, new DashSlashEffectLogic() }
+        { EffectType.DASHSLASH, new DashSlashEffectLogic() },
+        { EffectType.WALLJUMP, new WallJumpEffectLogic() }
     };
     public static void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
     {

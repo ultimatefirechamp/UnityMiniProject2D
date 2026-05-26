@@ -37,11 +37,11 @@ public class CharacterScript : MonoBehaviour, IControllable
     public event Action<StatusEffect> OnAddEffect;
 
     // 미분류 이벤트
-    public event Action OnCharacterDistroy;
+    public event Action OnCharacterDestroy;
     public event Action<int, int> OnSpChanged;
 
-    private Skill testingSkill;
-    Dictionary<string, Skill> _skillList;
+    private SkillRecord testingSkill;
+    Dictionary<string, SkillRecord> _skillList;
 
     public int MaxHp { get; private set; } = 10;
     public int Hp { get; private set; } = 10;
@@ -58,7 +58,7 @@ public class CharacterScript : MonoBehaviour, IControllable
     public string Name { get; private set; } = "popoi";
     private void Awake()
     {
-        _skillList = new Dictionary<string, Skill>();
+        _skillList = new Dictionary<string, SkillRecord>();
     }
     private void Start()
     {
@@ -66,7 +66,7 @@ public class CharacterScript : MonoBehaviour, IControllable
         GridPosition = MapManager.Inst.WorldToArrayPos(transform.position);
         MapManager.Inst.OccupyTile(GridPosition, this);
         SkillRecord record = GameDataManager.Instance.GetSkillRecord("skill_flyingswallow");
-        testingSkill = new Skill(record);
+        testingSkill = record;
         _skillList["skill_flyingswallow"] = testingSkill;
         //StatusEffect invincible = new Invincible(99, this);
         //_statusList.Add(invincible.Id, invincible);
@@ -202,12 +202,18 @@ public class CharacterScript : MonoBehaviour, IControllable
     }
     private void OnDisable()
     {
+        if(PracticeUIManager.Inst != null)
+        {
+            HPBarGroupScript hpbarGroup = PracticeUIManager.Inst.GetCreatedUI(UIType.HPBarGroup).GetComponent<HPBarGroupScript>();
+            if(hpbarGroup != null)
+            {
+                hpbarGroup.UnRegisterCharacter(this);
+            }
+        }
         MapManager.Inst.ClearTile(GridPosition);
-        HPBarGroupScript hpbarGroup = PracticeUIManager.Inst.GetCreatedUI(UIType.HPBarGroup).GetComponent<HPBarGroupScript>();
-        hpbarGroup.UnRegisterCharacter(this);
     }
     private void OnDestroy()
     {
-        OnCharacterDistroy?.Invoke();
+        OnCharacterDestroy?.Invoke();
     }
 }
