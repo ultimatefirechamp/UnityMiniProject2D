@@ -7,7 +7,7 @@ public class PlayerSet : MonoBehaviour
     CharacterScript _player;
     HUDLayout hud;
     bool _isSet = false;
-    private void Start()
+    private void Awake()
     {
         playerData.HP = 20;
         playerData.AC = 1;
@@ -18,23 +18,22 @@ public class PlayerSet : MonoBehaviour
         {
             return;
         }
+
+    }
+    private void Start()
+    {
         if(hud == null)
         {
             hud = PracticeUIManager.Inst.GetCreatedUI(UIType.HUD).GetComponent<HUDLayout>();
             hud.RegistPlayer(_player);
         }
+
         _player.SetCharacter(playerData);
-        StatusEffect effect = new Invincible(99, _player);
-        _player.AddStatusEffect(effect);
+        //StatusEffect effect = new Invincible(99, _player);
+        //_player.AddStatusEffect(effect);
     }
     private void OnEnable()
     {
-        if(PracticeUIManager.Inst == null)
-        {
-            return; 
-        }
-        hud = PracticeUIManager.Inst.GetCreatedUI(UIType.HUD).GetComponent<HUDLayout>();
-        hud.RegistPlayer(_player);
     }
     private void OnDisable()
     {

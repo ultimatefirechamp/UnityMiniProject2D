@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
     }
     void MoveInputHandle()
     {
+        bool isWait = false;
         if(BattleManager.Inst.IsPlayerTurn == false)
         {
             return;
@@ -84,20 +85,18 @@ public class PlayerController : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.S))
         {
-            // 마음에 안드는 매직 넘버... 일단 대기인지 입력이 없는건지 구분하기 위해 이렇게 함...
-            x = -2;
-            y = -2;
+            isWait = true;
         }
         Vector2Int moveDirection = new Vector2Int(x, y);
-        
-        if (moveDirection == Vector2.zero)
+
+        if (isWait == true)
         {
+            BattleManager.Inst.ProcessTick();
             return;
         }
 
-        if(moveDirection == new Vector2(-2,-2))
+        if (moveDirection == Vector2.zero)
         {
-            BattleManager.Inst.ProcessTick();
             return;
         }
 
@@ -110,6 +109,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+
             _character.Move(moveDirection);
         }
 
