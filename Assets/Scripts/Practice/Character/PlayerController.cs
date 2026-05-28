@@ -23,12 +23,18 @@ public class PlayerController : MonoBehaviour
         }
         Debug.LogWarning($"{this.gameObject.name} : Can't Find Controllable Component.");
     }
+    private void Start()
+    {
+        if(_character is CharacterScript player)
+        {
+            BattleManager.Inst.SetPlayer(player);
+        }
+    }
     void Update()
     {
-        MoveInputHandle();
-        //SkillInputHandle();
+        InputHandle();
     }
-    void MoveInputHandle()
+    void InputHandle()
     {
         bool isWait = false;
         if(BattleManager.Inst.IsPlayerTurn == false)
@@ -134,15 +140,5 @@ public class PlayerController : MonoBehaviour
 
         BattleManager.Inst.ProcessTick();
     }
-    void SkillInputHandle()
-    {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            if(_character is CharacterScript playableCharacter)
-            {
-                // Test Skill Script
-                playableCharacter.Skill(playableCharacter.GridPosition+Vector2Int.up);
-            }
-        }
-    }
+    
 }

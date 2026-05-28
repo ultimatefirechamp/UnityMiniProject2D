@@ -18,7 +18,6 @@ public class PlayerSet : MonoBehaviour
         {
             return;
         }
-
     }
     private void Start()
     {

@@ -20,12 +20,15 @@ public class AttackData
 }
 public class CharacterScript : MonoBehaviour, IControllable
 {
+    // 강사님 조언.
+    // 캐릭터에게 달린 컴포넌트가 너무 많다. 통합하거나 아니면 순수 C# 클래스로 뺄 수 있는 내용은 없을까?
+
     // 캐릭터 행위에 관한 이벤트
     public event Action<Transform> OnMove;
     public event Action OnAttack; // 일단 만들기만 해둠. 후에 필요한 일이 생기면 매개변수와 함께 쓸 예정.
     public event Action<CharacterScript> OnKillEvent;
     public event Action OnSkill; // 일단 만들기만 해둠. 후에 필요한 일이 생기면 매개변수와 함께 쓸 예정.
-
+    
     // 데미지와 관련한 이벤트
     public event Action<AttackData> OnBeforeDamage;
     public event Action<AttackData> OnDamageStep;
@@ -42,8 +45,15 @@ public class CharacterScript : MonoBehaviour, IControllable
     public event Action<int, int> OnSpChanged;
 
     private SkillRecord testingSkill;
+
+    // 처음에는 스킬, 특성, 상태이상을 캐릭터 스크립트에 두지 않으려 했는데
+    // 무엇을 가지고 있는지 정도는 캐릭터가 알고 있고 로직을 다른 곳으로 빼는걸로...
+    // 변천사
+    // 캐릭터가 로직까지 들고 있음 -> 캐릭터가 아무것도 모르고 있음 -> 내가 뭘 가지고 있는지는 캐릭터가 알고 있음.   
     Dictionary<string, SkillRecord> _skillList;
-    SkillComponent _skillComp;
+    SkillSystem _skillComp;
+    public StatusEffectSystem EffectSystem { get; private set; }
+    List<Trait> _activeTraits;
 
     public int MaxHp { get; private set; } = 10;
     public int Hp { get; private set; } = 10;
@@ -61,16 +71,21 @@ public class CharacterScript : MonoBehaviour, IControllable
     private void Awake()
     {
         _skillList = new Dictionary<string, SkillRecord>();
-        _skillComp = gameObject.GetComponent<SkillComponent>();
+        _activeTraits = new List<Trait>();
+        EffectSystem = new StatusEffectSystem(this);
     }
     private void Start()
     {
         Init();
+        EffectSystem.Init();
+        _activeTraits.Add(new HealOnKillTrait());
+        _activeTraits[0].Equip(this);
         GridPosition = MapManager.Inst.WorldToArrayPos(transform.position);
         MapManager.Inst.OccupyTile(GridPosition, this);
         SkillRecord record = GameDataManager.Instance.GetSkillRecord("skill_flyingswallow");
         testingSkill = record;
         _skillList["skill_flyingswallow"] = testingSkill;
+        _skillComp = new SkillSystem(this);
         //StatusEffect invincible = new Invincible(99, this);
         //_statusList.Add(invincible.Id, invincible);
     }
@@ -192,6 +207,10 @@ public class CharacterScript : MonoBehaviour, IControllable
     {
         AP += value;
     }
+
+    /// <summary>
+    /// 물리적인 위치 옮기는 부분도 포함되어 있음.
+    /// </summary>
     public void SetGridPosition(Vector2Int position)
     {
         GridPosition = position;
@@ -238,5 +257,11 @@ public class CharacterScript : MonoBehaviour, IControllable
     private void OnDestroy()
     {
         OnCharacterDestroy?.Invoke();
+        EffectSystem.CleanUp();
+        foreach(var trait in _activeTraits)
+        {
+            trait.UnEquip();
+        }
+        _activeTraits.Clear();
     }
 }
