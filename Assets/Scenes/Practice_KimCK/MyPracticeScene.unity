@@ -2208,11 +2208,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DebugInputField
   _commandInputField: {fileID: 573879139}
---- !u!1 &862173449 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 220082164099692610, guid: 98d263eb159f6e44c82ddda15da26068, type: 3}
-  m_PrefabInstance: {fileID: 997368337436764523}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1296103132
 GameObject:
   m_ObjectHideFlags: 0
@@ -2348,6 +2343,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1237573790135346842, guid: da5dfc2d71fd9694897ede3d74679c0c, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 319246163, guid: b7c7601046bf3dc4aae2d3729e7dfedf, type: 3}
+    - target: {fileID: 1237573790135346842, guid: da5dfc2d71fd9694897ede3d74679c0c, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1237573790135346842, guid: da5dfc2d71fd9694897ede3d74679c0c, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1237573790135346842, guid: da5dfc2d71fd9694897ede3d74679c0c, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4725904747613680508, guid: da5dfc2d71fd9694897ede3d74679c0c, type: 3}
       propertyPath: playerTransform
       value: 
@@ -2580,24 +2591,12 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2785324009162977005, guid: 98d263eb159f6e44c82ddda15da26068, type: 3}
   m_PrefabInstance: {fileID: 997368337436764523}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 862173449}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 418dfe020c90a124c8c8c18860b09509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterScript
---- !u!114 &1608699966
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 862173449}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ea239504c99cc44591bd9a1ed91f231, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SkillComponent
 --- !u!1 &1628179134
 GameObject:
   m_ObjectHideFlags: 0
@@ -9157,6 +9156,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1237573790135346842, guid: da5dfc2d71fd9694897ede3d74679c0c, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1237573790135346842, guid: da5dfc2d71fd9694897ede3d74679c0c, type: 3}
+      propertyPath: m_Color.g
+      value: 0.040958375
+      objectReference: {fileID: 0}
+    - target: {fileID: 1237573790135346842, guid: da5dfc2d71fd9694897ede3d74679c0c, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4725904747613680508, guid: da5dfc2d71fd9694897ede3d74679c0c, type: 3}
       propertyPath: playerTransform
       value: 
@@ -9342,13 +9353,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6916175388404600522, guid: 98d263eb159f6e44c82ddda15da26068, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 220082164099692610, guid: 98d263eb159f6e44c82ddda15da26068, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1608699966}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 98d263eb159f6e44c82ddda15da26068, type: 3}
 --- !u!224 &1720689070828549588
 RectTransform:
