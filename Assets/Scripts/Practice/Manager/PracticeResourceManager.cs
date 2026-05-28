@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -70,18 +72,61 @@ public class PracticeResourceManager : MonoBehaviour
             }
         };
     }
-    
-    public Sprite AddressableLoadSprite_Value(string path)
+    public async UniTask<T> LoadAssetAsync<T>(string path) where T : UnityEngine.Object
     {
-        if (_handles.TryGetValue(path, out AsyncOperationHandle handle))
+        if(_handles.ContainsKey(path))
         {
-            return handle.Result as Sprite;
+            return _handles[path].Result as T;
         }
-        //AsyncAwait 개념 선행.
-        AsyncOperationHandle<Sprite> loadedHandle = Addressables.LoadAssetAsync<Sprite>(path);
-        return loadedHandle.Result as Sprite; // 복불복... 될수도있고 안될수도 있습니다.
-        // 이런식으로는 불가능하려나... 비동기인 이상 이 함수가 sprite가 언제 로드될지를 모르기 때문에 직접 return하는건 좀 힘들 거 같은데...
-        // LoadAssetAsync가 언제 완료 될 지 모름. return을 달라고 하는 시점에서는 로드가 안되서 null값이 나올것 같음.
-        // 강사님 면담. 유니태스크, AsyncAwait도 한번 공부해봐라.
+        AsyncOperationHandle<T> handle = Addressables.LoadAssetAsync<T>(path);
+        try
+        {
+            await handle.ToUniTask();
+            _handles.Add(path, handle);
+            return handle.Result;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(ex);
+        }
+        return null;
+    }
+    public async UniTask<GameObject> LoadObjectAsync(string path)
+    {
+        if(_handles.ContainsKey(path))
+        {
+            return _handles[path].Result as GameObject;
+        }
+        AsyncOperationHandle handle = Addressables.LoadAssetAsync<GameObject>(path);
+        try
+        {
+            await handle.ToUniTask();
+            _handles[path] = handle;
+            return handle.Result as GameObject;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(ex);
+        }
+        return null;
+    }
+    
+    public void Unload(string path)
+    {
+        if (_handles.ContainsKey(path) == false)
+        {
+            return;
+        }
+        Addressables.Release(_handles[path]);
+        _handles.Remove(path);
+    }
+
+    public void ClearAllHandle()
+    {
+        foreach (var handleKV in _handles)
+        {
+            Addressables.Release(handleKV.Value);
+        }
+        _handles.Clear();
     }
 }
