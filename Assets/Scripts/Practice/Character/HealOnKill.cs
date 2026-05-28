@@ -3,7 +3,7 @@
 public class HealOnKill : MonoBehaviour
 {
     private CharacterScript _character;
-    private int _healAmount = 9;
+    private int _healAmount = 5;
 
     private void OnEnable()
     {
