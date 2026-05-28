@@ -31,6 +31,16 @@ public class AIController : MonoBehaviour
             return;
         }
 
+        if(BattleManager.Inst._player == null)
+        {
+            return;
+        }
+
+        if(this.playerTransform == null)
+        {
+            playerTransform = BattleManager.Inst._player.transform;
+        }
+
         if (_controllerable is CharacterScript bot == false)
         {
             return;
