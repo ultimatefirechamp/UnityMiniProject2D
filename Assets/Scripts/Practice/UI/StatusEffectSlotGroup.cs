@@ -65,23 +65,39 @@ public class StatusEffectSlotGroup : MonoBehaviour
 
     public void RegistCharacter(CharacterScript character)
     {
-        if(character.gameObject.TryGetComponent<StatusEffectComponent>(out var targetEffectComponent))
+        if (character.EffectSystem == null)
         {
-            character.OnMove += MoveGroup;
-            targetEffectComponent.OnStatusAdded += AddEffect;
-            targetEffectComponent.OnStatusUpdated += RefreshEffect;
-            targetEffectComponent.OnStatusRemoved += RemoveEffect;
-            MoveGroup(character.transform);
+            return;
         }
+        character.OnMove += MoveGroup;
+        character.EffectSystem.OnStatusAdded += AddEffect;
+        character.EffectSystem.OnStatusUpdated += RefreshEffect;
+        character.EffectSystem.OnStatusRemoved += RemoveEffect;
+        //if(character.gameObject.TryGetComponent<StatusEffectComponent>(out var targetEffectComponent))
+        //{
+        //    character.OnMove += MoveGroup;
+        //    targetEffectComponent.OnStatusAdded += AddEffect;
+        //    targetEffectComponent.OnStatusUpdated += RefreshEffect;
+        //    targetEffectComponent.OnStatusRemoved += RemoveEffect;
+        //    MoveGroup(character.transform);
+        //}
     }
     public void UnRegistCharacter(CharacterScript character)
     {
-        if(character.gameObject.TryGetComponent<StatusEffectComponent>(out var targetEffectComponent))
+        if (character.EffectSystem == null)
         {
-            character.OnMove -= MoveGroup;
-            targetEffectComponent.OnStatusAdded -= AddEffect;
-            targetEffectComponent.OnStatusUpdated -= RefreshEffect;
-            targetEffectComponent.OnStatusRemoved -= RemoveEffect;
+            return;
         }
+        character.OnMove -= MoveGroup;
+        character.EffectSystem.OnStatusAdded -= AddEffect;
+        character.EffectSystem.OnStatusUpdated -= RefreshEffect;
+        character.EffectSystem.OnStatusRemoved -= RemoveEffect;
+        //if(character.gameObject.TryGetComponent<StatusEffectComponent>(out var targetEffectComponent))
+        //{
+        //    character.OnMove -= MoveGroup;
+        //    targetEffectComponent.OnStatusAdded -= AddEffect;
+        //    targetEffectComponent.OnStatusUpdated -= RefreshEffect;
+        //    targetEffectComponent.OnStatusRemoved -= RemoveEffect;
+        //}
     }
 }
