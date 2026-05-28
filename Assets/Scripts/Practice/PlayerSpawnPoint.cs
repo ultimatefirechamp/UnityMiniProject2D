@@ -5,7 +5,13 @@ public class PlayerSpawnPoint : MonoBehaviour
     [SerializeField] Transform RootTransform;
     private void Start()
     {
-        SpawnPlayer();
+    }
+    public void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            SpawnPlayer();
+        }
     }
     public void SpawnPlayer()
     {

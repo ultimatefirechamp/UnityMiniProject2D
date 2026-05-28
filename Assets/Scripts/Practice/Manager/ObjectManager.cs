@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
+using System.Resources;
 using Unity.VisualScripting;
 using UnityEditorInternal;
 using UnityEngine;
@@ -22,7 +24,21 @@ public class ObjectManager : MonoBehaviour
 
     private void Start()
     {
-        //SpawnPlayer(new Vector2Int(0, 0));
+    }
+
+    public void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            StartGame().Forget();
+        }
+    }
+    public async UniTask StartGame()
+    {
+        GameObject ingameScene = await PracticeResourceManager.Inst.LoadAssetAsync<GameObject>("Assets/AddressableAsset/IngameScene.prefab");
+        GameObject createdScene = Instantiate(ingameScene);
+
+        createdScene.SetActive(true);
     }
 
     public GameObject SpawnUnit(Vector2Int position, Transform root = null)
