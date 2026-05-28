@@ -22,11 +22,20 @@ public class MapManager : MonoBehaviour
     private void Awake()
     {
         _instance = this;
-        GenerateGridData();
+        if(wallTilemap != null)
+        {
+            GenerateGridData();
+        }
         _pathfinder = new AStarPathFind();
         _pathfinder.SetCurrentMap(_walkableMap);
         _occupied = new HashSet<Vector2Int>();
         _characterPositions = new Dictionary<Vector2Int, CharacterScript>();
+    }
+    public void SetWallTileMap(Tilemap tileMap)
+    {
+        this.wallTilemap = tileMap;
+        GenerateGridData();
+        _pathfinder.SetCurrentMap(_walkableMap);
     }
 
     private void GenerateGridData()
