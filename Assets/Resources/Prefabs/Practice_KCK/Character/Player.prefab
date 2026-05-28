@@ -12,9 +12,7 @@ GameObject:
   - component: {fileID: 6916175388404600522}
   - component: {fileID: 2790340031848174689}
   - component: {fileID: 2785324009162977005}
-  - component: {fileID: 8897816155871687798}
-  - component: {fileID: 7535503051646166841}
-  - component: {fileID: 7332974464626075814}
+  - component: {fileID: 5778063367851590627}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -45,7 +43,7 @@ CircleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 220082164099692610}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -98,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 418dfe020c90a124c8c8c18860b09509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterScript
---- !u!114 &8897816155871687798
+--- !u!114 &5778063367851590627
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -107,33 +105,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 220082164099692610}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40f4ec64f9eef1d41bb230d736a163b1, type: 3}
+  m_Script: {fileID: 11500000, guid: 0751c7972264af544ae4452175dfa9bd, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HealOnKill
---- !u!114 &7535503051646166841
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 220082164099692610}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a27ce97c4d089034c9aed9639b23f61f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerSet
---- !u!114 &7332974464626075814
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 220082164099692610}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0a0d314fc16e4046a3d0e0bc518a237, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectComponent
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteController
+  _spriteList:
+  - {fileID: 319246163, guid: b7c7601046bf3dc4aae2d3729e7dfedf, type: 3}
+  - {fileID: 932138712, guid: b7c7601046bf3dc4aae2d3729e7dfedf, type: 3}
+  - {fileID: -97866582, guid: b7c7601046bf3dc4aae2d3729e7dfedf, type: 3}
+  _spriteRenderer: {fileID: 9010558960860110189}
 --- !u!1 &4244846932420271403
 GameObject:
   m_ObjectHideFlags: 0
@@ -215,7 +194,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 10
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: 319246163, guid: b7c7601046bf3dc4aae2d3729e7dfedf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
