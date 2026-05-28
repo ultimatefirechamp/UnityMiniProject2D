@@ -78,6 +78,25 @@ public class BombShuriken : StatusEffect
         }
     }
 }
+public class SelfBomb : StatusEffect
+{
+    public SelfBomb(int duration, CharacterScript target) : base("Status_SelfBomb", "자폭", duration, 1, target) { }
+    public override void OnTurnTick()
+    {
+        Duration--;
+        if(Duration > 0)
+        {
+            return;
+        }
+        Vector2Int casterPos = _target.GridPosition;
+        Vector2Int playerPos = BattleManager.Inst._player.GridPosition;
+        if(MyUtil.GetDistance(casterPos, playerPos) <= 1)
+        {
+
+        }
+        _target.InstantKill();
+    }
+}
 public class Poison : StatusEffect
 {
     public Poison(int duration, CharacterScript target) : base("Status_Poison", "독", duration, 99, target) { }
@@ -89,6 +108,7 @@ public class Poison : StatusEffect
 }
 public class Invincible : StatusEffect
 {
+    // IAttackable 같이 데미지를 받을 수 있는 인터페이스를 받는 걸로 만들면 좀 더 확장성 높아질 수 있음.
     public Invincible(int duration, CharacterScript target) : base("Status_Invincible", "무적", duration, 1, target) { }
     public override void OnTurnTick()
     {
