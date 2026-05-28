@@ -18,6 +18,7 @@ public enum EffectType
     KNOCKBACK,
     DASHSLASH,
     WALLJUMP,
+    GUILLOTINE,
     POISONOUS
 }
 
@@ -224,7 +225,50 @@ public class WallJumpEffectLogic : IEffectLogic
         }
     }
 }
+public class GuillotineEffectLogic : IEffectLogic
+{
+    public void ApplyEffect(EffectPayload payload, CharacterScript caster, Vector2Int target)
+    {
+        if(MapManager.Inst.IsOccupied(target) == false)
+        {
+            caster.Move(target - caster.GridPosition);
+            return;
+        }
+        int throwDistance = payload.Values[0];
+        int damage = payload.Values[1];
+        Vector2Int checkPosition = caster.GridPosition;
+        Vector2Int direction = target - caster.GridPosition;
+        CharacterScript targetEnemy = MapManager.Inst.GetCharacterAtPosition(target);
 
+        caster.AddStatusEffect(new Invincible(1, caster));
+        int count = 0;
+        for (int i = 0; i < throwDistance; i++)
+        {
+            // 한칸씩 전진하면서
+            // 벽을 만나면 던지는거리-이동거리 x 데미지 만큼 데미지
+
+            // 어떻게 될지 한번 생각해보자...
+
+            // case 1. 스킬을 쓰고 throwDistance 보다 더 가까이 벽이 있을 때
+            // -> 벽을 만날 때 까지 적을 밀고 (throwDistance - 이동거리) * damage 만큼 데미지.
+            // 만약 벽과 인접해 있는 상황이면? <- 여기에 대한 처리를 어떻게 해야할지?
+
+            // case 2. 스킬을 썼는데 다른 적 개체와 부딪히게 될 경우
+            // -> 마찬가지로 해당 진행방향 바로 전 칸에 배치하고 (throwDistance - 이동거리) * damage 만큼의 데미지를 양측에?
+            // 이번에도 적과 인접해 있는 상황이면?
+
+            // 추가로 적 AI도 이제 좀 나눠서 구현 할 수 있으면 좋겠는데
+            // 원거리, 근거리, 자폭 대충 이렇게 세 가지 정도로 구분해서 적 AI를 나누고 싶다.
+
+            checkPosition += direction;
+            if(MapManager.Inst.IsWalkable(checkPosition) == false)
+            {
+                int modify = throwDistance - count;
+            }
+
+        }
+    }
+}
 
 [System.Serializable]
 public class SkillData : GameDataBase // 데이터 드리븐을 통해 받을 스킬의 데이터 양식
