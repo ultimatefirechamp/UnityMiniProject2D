@@ -88,10 +88,10 @@ public class BattleManager : MonoBehaviour
     public void RequestSkill(CharacterScript caster, Vector2Int target, SkillRecord skill)
     {
         // skill check and execute Skill
-        if(IsMyTurn(caster) == false)
-        {
-            return;
-        }
+        //if(IsMyTurn(caster) == false)
+        //{
+        //    return;
+        //}
 
         skill.Execute(caster,target);
     }
