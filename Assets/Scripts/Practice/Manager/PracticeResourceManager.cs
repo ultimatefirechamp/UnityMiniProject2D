@@ -110,7 +110,18 @@ public class PracticeResourceManager : MonoBehaviour
         }
         return null;
     }
-    
+    public bool IsContainAsset(string path)
+    {
+        return _handles.ContainsKey(path);
+    }
+    public T GetAssetWithoutLoad<T>(string path) where T : UnityEngine.Object
+    {
+        if(_handles.ContainsKey(path))
+        {
+            return _handles[path].Result as T;
+        }
+        return null;
+    }
     public void Unload(string path)
     {
         if (_handles.ContainsKey(path) == false)
