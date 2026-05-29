@@ -20,6 +20,8 @@ public class HUDLayout : MonoBehaviour
     {
         player.OnDamaged += SetHpBar;
         player.OnSpChanged += SetSpBar;
+        SetHpBar(player.Hp, player.MaxHp);
+        SetSpBar(player.SP, player.MaxSP);
     }
     public void UnRegistPlayer(CharacterScript player)
     {
