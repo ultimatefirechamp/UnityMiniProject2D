@@ -215,6 +215,13 @@ public class MapManager : MonoBehaviour
             _characterPositions.Remove(position);
         }
     }
+    public void ResetManager()
+    {
+        _occupied.Clear();
+        _characterPositions.Clear();
+        _walkableMap = null;
+        wallTilemap = null;
+    }
     private void OnDrawGizmos()
     {
         if(_walkableMap == null)

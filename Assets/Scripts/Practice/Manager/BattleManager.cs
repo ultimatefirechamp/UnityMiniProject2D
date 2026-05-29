@@ -9,8 +9,6 @@ public class BattleManager : MonoBehaviour
 {
     private List<CharacterScript> _enemyList;
     public CharacterScript _player; // 원래 이러면 안되지만... 아 귀찮다... 일단 직접 연결하고 나중에 따로 불러오도록 하는걸로
-    private GameObject _enemyPrefab;
-    private PracticeMainUI _mainUI;
     public int WorldTick { get; private set; } = 0;
     public int WorldTickInterval { get; private set; } = 100;
     public int WorldTickIncrease { get; private set; } = 100;
@@ -45,17 +43,6 @@ public class BattleManager : MonoBehaviour
     
     private void Start()
     {
-        _mainUI = PracticeUIManager.Inst.GetCreatedUI(UIType.MainUI).GetComponent<PracticeMainUI>();
-
-        // 디버깅용으로 편의상 로드해둔 데이터들
-        _enemyPrefab = PracticeResourceManager.Inst.LoadPrefab("Prefabs/Practice_KCK/Character/Enemy");
-        // 실제 인게임 상에서 배틀 매니저가 enemy 스폰에 직접적 관여 금지
-        if(GameDataManager.Instance.GetSkill("skill_smash") == null)
-        {
-            Debug.LogWarning("Skill Data NULL");
-        }
-        // 스킬도 확인 용으로 임시로 받은 데이터.
-        Debug.Log((GameDataManager.Instance.GetSkill("skill_smash")).Name);
 
     }
     
@@ -148,7 +135,6 @@ public class BattleManager : MonoBehaviour
     public void TurnChange()
     {
         IsPlayerTurn = !IsPlayerTurn;
-        _mainUI.SetCurrentTurn(IsPlayerTurn);
         if(IsPlayerTurn)
         {
             //_player.OnTurnStart();
@@ -213,7 +199,11 @@ public class BattleManager : MonoBehaviour
             }
         }
         RefreshEnemyList();
-        _mainUI.SetCurrentTurn(true);
+        if(_player.IsAlive == false)
+        {
+            GameFlowManager.Inst.SetGamePhase(GamePhase.GameOver);
+            //GameOverScreen;
+        }
     }
 
     void OnTick()
@@ -235,19 +225,11 @@ public class BattleManager : MonoBehaviour
             }
         }
     }
-    // 이하는 디버그 용으로 만들었던 SpawnEnemy 메서드. 나중에 Spawn전용 클래스를 만들거나 ObjectManager를 두면 좋을 듯.
-    public void SpawnEnemy()
-    {
-        GameObject spawnedEnemy = Instantiate(_enemyPrefab);
-        spawnedEnemy.transform.position = new Vector2(0.5f, 0.5f);
-        _enemyList.Add(spawnedEnemy.GetComponent<CharacterScript>());
-    }
     
-    public CharacterScript GetSpawnEnemy()
+    public void ResetManager()
     {
-        GameObject spawnedEnemy = Instantiate(_enemyPrefab);
-        spawnedEnemy.transform.position = new Vector2(0.5f, 0.5f);
-        _enemyList.Add(spawnedEnemy.GetComponent<CharacterScript>());
-        return spawnedEnemy.GetComponent<CharacterScript>();
+        WorldTick = 0;
+        _player = null;
+        _enemyList.Clear();
     }
 }
