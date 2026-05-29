@@ -10,7 +10,12 @@ public class ButtonBase : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public Image _selectImage;
     public event Action OnEnterPointer;
     public event Action OnExitPointer;
+    Action _onClickAction;
 
+    private void Awake()
+    {
+        _button.onClick.AddListener(() => _onClickAction?.Invoke());
+    }
     public void OnPointerEnter(PointerEventData eventData)
     {
         OnEnterPointer?.Invoke();
@@ -23,11 +28,14 @@ public class ButtonBase : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     }
     public void BindOnClickEvent(Action callback)
     {
-        _button.onClick.AddListener(new UnityEngine.Events.UnityAction(callback));
+        _onClickAction += callback;
+        //_button.onClick.AddListener(new UnityEngine.Events.UnityAction(callback));
+
     }
     public void UnBindOnClickEvent(Action callback)
     {
-        _button.onClick.RemoveListener(new UnityEngine.Events.UnityAction(callback));
+        _onClickAction -= callback;
+        //_button.onClick.RemoveListener(new UnityEngine.Events.UnityAction(callback));
     }
     public void BindOnPointerEnterEvent(Action callback)
     {
@@ -48,7 +56,8 @@ public class ButtonBase : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void UnBindAllEvent()
     {
-        _button.onClick.RemoveAllListeners();
+        _onClickAction = null;
+        //_button.onClick.RemoveAllListeners();
         OnEnterPointer = null;
         OnExitPointer = null;
     }
@@ -58,7 +67,8 @@ public class ButtonBase : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     }
     public void Execute()
     {
-        _button.onClick?.Invoke();
+        //_button.onClick?.Invoke();
+        _onClickAction.Invoke();
     }
 
 }
