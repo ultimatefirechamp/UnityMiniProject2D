@@ -295,11 +295,13 @@ public class SkillRecord
 {
     public SkillData Data { get; private set; }
     public SkillType Type { get; private set; }
+    public int CostSP { get; private set; }
     public List<EffectPayload> Effects { get; private set; }
     public SkillRecord(SkillData data)
     {
         Data = data;
         Effects = new List<EffectPayload>();
+        CostSP = data.CostSP;
         foreach (var effectString in data.EffectList)
         {
             string[] effectParam = effectString.Split(':');

@@ -15,7 +15,7 @@
     "Id": "skill_flyingswallow",
     "Name": "참새날기",
     "Description": "참새처럼 날아서 때린다",
-    "CostSP": 0,
+    "CostSP": 4,
     "Type": "Active",
     "CastRange": 3,
     "EffectList": [
@@ -26,7 +26,7 @@
     "Id": "skill_walljump",
     "Name": "벽점프",
     "Description": "벽을 박차고 반대 방향으로 도약한다",
-    "CostSP": 0,
+    "CostSP": 3,
     "Type": "Active",
     "CastRange": 1,
     "EffectList": [

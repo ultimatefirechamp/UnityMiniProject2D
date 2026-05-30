@@ -129,6 +129,11 @@ public class CharacterScript : MonoBehaviour, IControllable
         Vector2Int target = moveDirection + GridPosition;
         _skillComp.UseSkill(comboType, target);
     }
+    public void ReduceSP(int SpAmount)
+    {
+        SP -= SpAmount;
+        OnSpChanged?.Invoke(MaxSP,SP);
+    }
     public void Move(Vector2Int direction)
     {
         // Request to Manager
@@ -163,6 +168,25 @@ public class CharacterScript : MonoBehaviour, IControllable
             Hp = MaxHp;
         }
         OnDamaged?.Invoke(MaxHp, Hp);
+    }
+    public void RecoverHP(int healAmount)
+    {
+        Hp += healAmount;
+        if (Hp > MaxHp)
+        {
+            Hp = MaxHp;
+        }
+        OnDamaged?.Invoke(MaxHp, Hp);
+    }
+
+    public void RecoverSP(int spAmount)
+    {
+        SP += spAmount;
+        if(SP > MaxSP)
+        {
+            SP = MaxSP; 
+        }
+        OnSpChanged?.Invoke(MaxSP, SP);
     }
     public void InstantKill(CharacterScript attacker = null)
     {
@@ -223,6 +247,7 @@ public class CharacterScript : MonoBehaviour, IControllable
     public void OnWorldTick()
     {
         OnTickStart?.Invoke();
+        RecoverSP(1);
     }
     public void OnActionEnd()
     {

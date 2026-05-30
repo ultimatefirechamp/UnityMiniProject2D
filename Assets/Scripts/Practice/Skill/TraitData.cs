@@ -27,7 +27,7 @@ public abstract class Trait
 
 public class HealOnKillTrait : Trait
 {
-    int spHealAmount = 4;
+    int spHealAmount = 3;
     int hpHealAmount = 5;
 
     public override void Equip(CharacterScript owner)
@@ -45,7 +45,7 @@ public class HealOnKillTrait : Trait
     }
     public void HandleKill(CharacterScript owner)
     {
-        _owner.Heal(hpHealAmount);
-
+        _owner.RecoverHP(hpHealAmount);
+        _owner.RecoverSP(spHealAmount);
     }
 }

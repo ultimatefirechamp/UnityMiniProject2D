@@ -28,6 +28,12 @@ public class SkillSystem
             Debug.LogWarning($"{_owner.name} doesn't have {skillId} skill");
             return;
         }
+        if(skill.CostSP > _owner.SP)
+        {
+            Debug.Log("not enough SP");
+            return;
+        }
+        _owner.ReduceSP(skill.CostSP);
         BattleManager.Inst.RequestSkill(_owner, target, skill);
     }
     public void UseSkill(SkillComboType comboType, Vector2Int target)
