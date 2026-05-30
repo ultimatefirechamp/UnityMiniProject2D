@@ -61,9 +61,9 @@ public class AIController : MonoBehaviour
         int distance = deltaX > deltaY ? deltaX : deltaY;
         if(distance <= bot.AttackRange)
         {
-            //_controllerable.Attack(playerPos);
+            _controllerable.Attack(playerPos);
             CharacterScript player = MapManager.Inst.GetCharacterAtPosition(playerPos);
-            player.AddStatusEffect(new BombShuriken(3, 2, player));
+            //player.AddStatusEffect(new BombShuriken(3, 2, player));
             return;
         }
         // 플레이어를 향해 이동.
