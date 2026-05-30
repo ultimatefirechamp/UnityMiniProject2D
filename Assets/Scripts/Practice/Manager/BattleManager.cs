@@ -169,13 +169,7 @@ public class BattleManager : MonoBehaviour
         while (_player.AP < _player.APCost)
         {
             // player의 AP를 채우기만하고 별다른 검사를 하지 않아도 괜찮을 듯.
-            _player.AddActionPoint(WorldTickInterval);
-            WorldTick += WorldTickInterval;
-            if(WorldTick >= WorldTickInterval)
-            {
-                OnTick();
-                WorldTick -= WorldTickInterval;
-            }
+           
             foreach(var enemy in _enemyList)
             {
                 // 현재 IsAlive를 건들거나 사용하는 로직을 짜지 않아서 isAlive판단 아직 안함
@@ -196,6 +190,13 @@ public class BattleManager : MonoBehaviour
                     controller.AITurn();
                     enemy.OnActionEnd();
                 }
+            }
+            _player.AddActionPoint(WorldTickInterval);
+            WorldTick += WorldTickInterval;
+            if (WorldTick >= WorldTickInterval)
+            {
+                OnTick();
+                WorldTick -= WorldTickInterval;
             }
         }
         RefreshEnemyList();
